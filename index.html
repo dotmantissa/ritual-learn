@@ -245,7 +245,12 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
 .result-label{font-family:var(--mono);font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-faint);margin-bottom:24px;position:relative}
 .result-tier{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;position:relative;letter-spacing:.04em}
 .result-msg{font-size:13px;color:var(--text-dim);max-width:320px;margin:0 auto 28px;position:relative;line-height:1.6}
-.result-actions{display:flex;gap:10px;justify-content:center;position:relative}
+.result-actions{display:flex;gap:10px;justify-content:center;position:relative;flex-wrap:wrap}
+.btn-share-x{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3);cursor:pointer;padding:11px 20px;border-radius:2px;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.btn-share-x:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.6)}
+.btn-dl-card{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--green);border:1px solid var(--green);cursor:pointer;padding:11px 20px;border-radius:2px;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.btn-dl-card:hover{background:rgba(90,253,142,.08);box-shadow:0 0 14px var(--green-glow)}
+#share-canvas{display:none}
 
 /* ── LEADERBOARD ── */
 .lb-table{background:var(--surface);border:1px solid var(--border-dim);border-radius:4px;overflow:hidden;margin-top:20px;position:relative}
@@ -394,6 +399,8 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
         <div class="result-msg" id="r-msg"></div>
         <div class="result-actions">
           <button class="btn-primary" onclick="goLB()">View Leaderboard →</button>
+          <button class="btn-dl-card" onclick="downloadFinalCard()">↓ Download Card</button>
+          <button class="btn-share-x" onclick="shareFinalToX()">Share ✕</button>
           <button class="btn-ghost" onclick="retryFinalQuiz()">Retry</button>
         </div>
       </div>
@@ -420,6 +427,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
 </div>
 
 </main>
+<canvas id="share-canvas" width="1200" height="630"></canvas>
 
 <script>
 // Scores are handled server-side via /api/scores — no keys in the client.
@@ -944,18 +952,34 @@ function startModuleQuiz(){
   renderMQ();
 }
 
+// Per-question shuffled state — regenerated each render so retakes get new order
+let _mqShuffled = null;
+
+function shuffleArray(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
 function renderMQ(){
   const mod = MODULES.find(m=>m.id===curModuleId);
   const q = mod.quiz[mqQ];
   mqAnswered = false;
   const pct = (mqQ / mod.quiz.length) * 100;
   const L = ['A','B','C','D'];
+
+  // Shuffle options — track correct answer by text value, not index
+  const correctText = q.opts[q.ans];
+  const shuffledOpts = shuffleArray(q.opts);
+  const shuffledAns = shuffledOpts.indexOf(correctText);
+  _mqShuffled = { opts: shuffledOpts, ans: shuffledAns };
+
   document.getElementById('mq-questions').innerHTML = `
     <div class="mq-prog-bar"><div class="mq-prog-fill" id="mq-fill" style="width:${pct}%"></div></div>
     <div class="mq-q-num">// Question ${mqQ+1} of ${mod.quiz.length}</div>
     <div class="mq-q-text">${q.q}</div>
     <div class="mq-options" id="mq-opts">
-      ${q.opts.map((o,i)=>`<button class="mq-opt" onclick="selectMQ(${i})" id="mq-opt-${i}"><span class="mq-opt-l">${L[i]}</span>${o}</button>`).join('')}
+      ${shuffledOpts.map((o,i)=>`<button class="mq-opt" onclick="selectMQ(${i})" id="mq-opt-${i}"><span class="mq-opt-l">${L[i]}</span>${o}</button>`).join('')}
     </div>
     <div class="mq-exp" id="mq-exp"></div>
     <div style="text-align:right">
@@ -966,11 +990,12 @@ function renderMQ(){
 function selectMQ(idx){
   if(mqAnswered) return;
   mqAnswered = true;
+  const { ans } = _mqShuffled;
   const mod = MODULES.find(m=>m.id===curModuleId);
   const q = mod.quiz[mqQ];
   document.querySelectorAll('.mq-opt').forEach(o=>o.disabled=true);
-  if(idx===q.ans){ document.getElementById('mq-opt-'+idx).classList.add('correct'); mqScore++; }
-  else { document.getElementById('mq-opt-'+idx).classList.add('wrong'); document.getElementById('mq-opt-'+q.ans).classList.add('reveal'); }
+  if(idx===ans){ document.getElementById('mq-opt-'+idx).classList.add('correct'); mqScore++; }
+  else { document.getElementById('mq-opt-'+idx).classList.add('wrong'); document.getElementById('mq-opt-'+ans).classList.add('reveal'); }
   const exp = document.getElementById('mq-exp');
   exp.textContent = q.exp; exp.className = 'mq-exp show';
   document.getElementById('mq-next').style.display = 'inline-block';
@@ -991,6 +1016,8 @@ function showMQResult(mod){
   document.getElementById('mq-result-area').style.display = 'block';
   const passed = mqScore === mod.quiz.length;
   if(passed) markModuleComplete(mod.id);
+  // Save state for share card
+  _lastModCard = { modTitle: mod.title, score: mqScore, total: mod.quiz.length, passed, user: currentUser||'anon' };
   const allDone = getCompletedModules().length >= MODULES.length;
   document.getElementById('mq-result-area').innerHTML = `
     <div class="mq-result">
@@ -1002,8 +1029,8 @@ function showMQResult(mod){
       <div class="mq-result-actions">
         ${passed
           ? (allDone
-              ? `<button class="btn-amber" onclick="goFinalQuiz()">Take Final Quiz →</button><button class="btn-ghost" onclick="backToHome()">Back to modules</button>`
-              : `<button class="btn-primary" onclick="backToHome()">Next module →</button>`)
+              ? `<button class="btn-amber" onclick="goFinalQuiz()">Take Final Quiz →</button><button class="btn-dl-card" onclick="downloadModuleCard()">↓ Download Card</button><button class="btn-share-x" onclick="shareModuleToX()">Share ✕</button><button class="btn-ghost" onclick="backToHome()">Back to modules</button>`
+              : `<button class="btn-primary" onclick="backToHome()">Next module →</button><button class="btn-dl-card" onclick="downloadModuleCard()">↓ Card</button><button class="btn-share-x" onclick="shareModuleToX()">Share ✕</button>`)
           : `<button class="btn-primary" onclick="startModuleQuiz()">Retry quiz →</button>`}
       </div>
       ${!passed ? `<div class="mq-fail-note">// Score ${mqScore}/${mod.quiz.length} — all ${mod.quiz.length} correct required to pass</div>` : ''}
@@ -1110,6 +1137,8 @@ function startFinalQuiz(){
   renderFinalQ();
 }
 
+let _fqShuffled = null;
+
 function renderFinalQ(){
   const q=FINAL_QS[fqCur]; fqAnswered=false;
   document.getElementById('q-fill').style.width=((fqCur/FINAL_QS.length)*100)+'%';
@@ -1118,19 +1147,26 @@ function renderFinalQ(){
   document.getElementById('q-exp').className='q-exp';
   document.getElementById('q-next').style.display='none';
   const L=['A','B','C','D'];
-  document.getElementById('q-opts').innerHTML=q.opts.map((o,i)=>
+
+  // Shuffle options each render
+  const correctText = q.opts[q.ans];
+  const shuffledOpts = shuffleArray(q.opts);
+  const shuffledAns = shuffledOpts.indexOf(correctText);
+  _fqShuffled = { opts: shuffledOpts, ans: shuffledAns };
+
+  document.getElementById('q-opts').innerHTML=shuffledOpts.map((o,i)=>
     `<button class="q-opt" onclick="selectFinalQ(${i})" id="fq-opt-${i}"><span class="opt-l">${L[i]}</span>${o}</button>`
   ).join('');
 }
 
 function selectFinalQ(idx){
   if(fqAnswered)return; fqAnswered=true;
-  const q=FINAL_QS[fqCur];
+  const { ans } = _fqShuffled;
   document.querySelectorAll('.q-opt').forEach(o=>o.disabled=true);
-  if(idx===q.ans){document.getElementById('fq-opt-'+idx).classList.add('correct');fqScore++;}
-  else{document.getElementById('fq-opt-'+idx).classList.add('wrong');document.getElementById('fq-opt-'+q.ans).classList.add('reveal');}
+  if(idx===ans){document.getElementById('fq-opt-'+idx).classList.add('correct');fqScore++;}
+  else{document.getElementById('fq-opt-'+idx).classList.add('wrong');document.getElementById('fq-opt-'+ans).classList.add('reveal');}
   const exp=document.getElementById('q-exp');
-  exp.textContent=q.exp; exp.className='q-exp show';
+  exp.textContent=FINAL_QS[fqCur].exp; exp.className='q-exp show';
   document.getElementById('q-next').style.display='inline-block';
 }
 
@@ -1152,6 +1188,8 @@ function showFinalResult(){
   document.getElementById('r-score').innerHTML=`${fqScore}<span>/${FINAL_QS.length}</span>`;
   document.getElementById('r-tier').textContent=tier;
   document.getElementById('r-msg').textContent=msg;
+  // Save state for share card
+  _lastFinalCard = { score: fqScore, total: FINAL_QS.length, tier, msg, user: currentUser||'anon' };
   saveFinalScore(currentUser||'anon',fqScore,tier);
 }
 
@@ -1218,6 +1256,163 @@ async function loadLB(){
   (source==='local'?`<div style="padding:8px 18px;font-family:var(--mono);font-size:9px;color:var(--text-faint);border-top:1px solid var(--border-dim);letter-spacing:.08em">// local cache — open leaderboard once deployed to see live rankings</div>`:'');
 }
 loadLB();
+
+/* ─── SHARE & DOWNLOAD CARDS ─── */
+
+// State saved by result screens so card functions can read it
+let _lastModCard = null;  // {modTitle, score, total, passed}
+let _lastFinalCard = null; // {score, total, tier, msg}
+
+function showMQResultPatched(mod, passed, score){
+  _lastModCard = { modTitle: mod.title, score, total: mod.quiz.length, passed, user: currentUser||'anon' };
+}
+
+function drawCard(ctx, W, H, opts){
+  // Background
+  ctx.fillStyle = '#080808';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(90,253,142,0.04)';
+  ctx.lineWidth = 1;
+  for(let x=0;x<W;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // Scanlines
+  ctx.fillStyle = 'rgba(0,0,0,0.06)';
+  for(let y=0;y<H;y+=4){ ctx.fillRect(0,y+3,W,1); }
+
+  // Glow blob
+  const grd = ctx.createRadialGradient(W*0.5,H*0.35,0,W*0.5,H*0.35,W*0.45);
+  grd.addColorStop(0,'rgba(90,253,142,0.07)');
+  grd.addColorStop(1,'rgba(90,253,142,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,W,H);
+
+  // Top border glow
+  const topGrd = ctx.createLinearGradient(0,0,W,0);
+  topGrd.addColorStop(0,'rgba(90,253,142,0)');
+  topGrd.addColorStop(0.5,'rgba(90,253,142,0.8)');
+  topGrd.addColorStop(1,'rgba(90,253,142,0)');
+  ctx.strokeStyle = topGrd;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,0); ctx.stroke();
+
+  // Outer border
+  ctx.strokeStyle = 'rgba(90,253,142,0.25)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(1,1,W-2,H-2);
+
+  // Corner accents
+  const cs = 32, cm = 20;
+  ctx.strokeStyle = 'rgba(90,253,142,0.7)';
+  ctx.lineWidth = 1.5;
+  [[cm,cm,1,1],[W-cm,cm,-1,1],[cm,H-cm,1,-1],[W-cm,H-cm,-1,-1]].forEach(([x,y,dx,dy])=>{
+    ctx.beginPath(); ctx.moveTo(x,y+dy*cs); ctx.lineTo(x,y); ctx.lineTo(x+dx*cs,y); ctx.stroke();
+  });
+
+  // Ritual wordmark
+  ctx.font = '500 18px serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.letterSpacing = '4px';
+  ctx.textAlign = 'left';
+  ctx.fillText('RITUAL', cm+10, cm+28);
+
+  ctx.font = '300 11px monospace';
+  ctx.fillStyle = 'rgba(90,253,142,0.7)';
+  ctx.fillText('LEARN PROTOCOL', cm+10, cm+46);
+
+  // Main score
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 110px serif';
+  ctx.fillStyle = '#5AFD8E';
+  ctx.shadowColor = 'rgba(90,253,142,0.6)';
+  ctx.shadowBlur = 40;
+  ctx.fillText(opts.score, W*0.5, H*0.45);
+  ctx.shadowBlur = 0;
+
+  // Score label
+  ctx.font = '300 18px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillText('/ '+opts.total+' correct', W*0.5, H*0.45+36);
+
+  // Title line
+  ctx.font = 'bold 28px serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.letterSpacing = '2px';
+  ctx.fillText(opts.title, W*0.5, H*0.62);
+
+  // Tier / subtitle
+  ctx.font = '500 20px serif';
+  ctx.fillStyle = 'rgba(90,253,142,0.9)';
+  ctx.shadowColor = 'rgba(90,253,142,0.5)';
+  ctx.shadowBlur = 12;
+  ctx.fillText(opts.tier, W*0.5, H*0.74);
+  ctx.shadowBlur = 0;
+
+  // Username
+  ctx.font = '300 14px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText('// '+opts.user, W*0.5, H*0.84);
+
+  // Footer
+  ctx.font = '300 12px monospace';
+  ctx.fillStyle = 'rgba(90,253,142,0.3)';
+  ctx.textAlign = 'right';
+  ctx.fillText('ritual.academy', W-cm-10, H-cm-10);
+}
+
+function getCanvas(){
+  const cv = document.getElementById('share-canvas');
+  cv.width = 1200; cv.height = 630;
+  return cv;
+}
+
+function downloadModuleCard(){
+  if(!_lastModCard) return;
+  const cv = getCanvas();
+  const ctx = cv.getContext('2d');
+  drawCard(ctx, 1200, 630, {
+    score: _lastModCard.score,
+    total: _lastModCard.total,
+    title: _lastModCard.modTitle.toUpperCase(),
+    tier: _lastModCard.passed ? '✓ Module Complete' : 'Incomplete',
+    user: _lastModCard.user
+  });
+  const a = document.createElement('a');
+  a.download = 'ritual-'+_lastModCard.modTitle.toLowerCase().replace(/\s+/g,'-')+'.png';
+  a.href = cv.toDataURL('image/png');
+  a.click();
+}
+
+function shareModuleToX(){
+  if(!_lastModCard) return;
+  const text = `Just completed the "${_lastModCard.modTitle}" module on @ritualnet Learn — scored ${_lastModCard.score}/${_lastModCard.total}. Learning on-chain AI one module at a time.`;
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text), '_blank');
+}
+
+function downloadFinalCard(){
+  if(!_lastFinalCard) return;
+  const cv = getCanvas();
+  const ctx = cv.getContext('2d');
+  drawCard(ctx, 1200, 630, {
+    score: _lastFinalCard.score,
+    total: _lastFinalCard.total,
+    title: 'RITUAL FINAL EXAM',
+    tier: _lastFinalCard.tier,
+    user: _lastFinalCard.user
+  });
+  const a = document.createElement('a');
+  a.download = 'ritual-final-exam.png';
+  a.href = cv.toDataURL('image/png');
+  a.click();
+}
+
+function shareFinalToX(){
+  if(!_lastFinalCard) return;
+  const text = `Scored ${_lastFinalCard.score}/${_lastFinalCard.total} on the @ritualnet Learn Final Exam. Rank: ${_lastFinalCard.tier}. Do you know your on-chain AI?`;
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text), '_blank');
+}
 
 /* ─── INIT ─── */
 initUser();
