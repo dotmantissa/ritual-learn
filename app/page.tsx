@@ -397,6 +397,7 @@ export default function RitualLearnHub() {
   const [mqScore, setMqScore] = useState(0);
   const [mqAnswered, setMqAnswered] = useState(false);
   const [mqShowResult, setMqShowResult] = useState(false);
+  const [mqStarted, setMqStarted] = useState(false);
   
   // Glossary state
   const [glossaryQuery, setGlossaryQuery] = useState('');
