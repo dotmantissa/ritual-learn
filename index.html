@@ -31,11 +31,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .dm-corners span:nth-child(2){top:0;right:0;border-width:1px 1px 0 0}
 .dm-corners span:nth-child(3){bottom:0;left:0;border-width:0 0 1px 1px}
 .dm-corners span:nth-child(4){bottom:0;right:0;border-width:0 1px 1px 0}
-
-/* LOGO UPDATES */
-.modal-logo { display: block; margin: 0 auto 20px; height: 36px; width: auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--green-glow)); }
-.nav-logo-img { height: 28px; width: auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 0 6px var(--green-glow)); }
-
+.discord-modal .logo-img{margin:0 auto 20px;width:40px;height:40px;display:block}
 .dm-title{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:.04em}
 .dm-sub{font-size:13px;color:var(--text-dim);margin-bottom:28px;line-height:1.6}
 .dm-label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;text-align:left}
@@ -46,6 +42,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px}
 .nav-logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:15px;font-weight:700;color:#fff;letter-spacing:.08em;text-transform:uppercase}
+.logo-img{width:28px;height:28px;object-fit:contain;filter:invert(1) brightness(2)}
 .nav-sep{color:var(--text-faint);margin:0 4px;font-weight:300}
 .nav-sub{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.12em;opacity:.7}
 .nav-links{display:flex;gap:2px}
@@ -284,10 +281,11 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
 </head>
 <body>
 
+<!-- DISCORD OVERLAY -->
 <div id="discord-overlay">
   <div class="discord-modal">
     <div class="dm-corners"><span></span><span></span><span></span><span></span></div>
-    <img src="/logo.png" alt="Ritual Logo" class="modal-logo" />
+    <img class="logo-img" src="logo.png" alt="Ritual" style="margin:0 auto 20px;width:36px;height:36px;display:block">
     <div class="dm-title">Welcome to Ritual Learn</div>
     <p class="dm-sub">Enter your Discord username to get started. Your progress and quiz scores will be saved under this name.</p>
     <label class="dm-label">Discord username</label>
@@ -297,9 +295,10 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
   </div>
 </div>
 
+<!-- NAV -->
 <nav>
   <div class="nav-logo">
-    <img src="/logo.png" alt="Ritual Logo" class="nav-logo-img" />
+    <img class="logo-img" src="logo.png" alt="Ritual">
     Ritual<span class="nav-sep">|</span><span class="nav-sub">Learn</span>
   </div>
   <div style="display:flex;align-items:center;gap:20px">
@@ -315,6 +314,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
 
 <main>
 
+<!-- LEARN -->
 <div id="section-learn" class="section active">
   <div id="learn-home">
     <div class="hero">
@@ -340,6 +340,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
   </div>
 </div>
 
+<!-- GLOSSARY -->
 <div id="section-glossary" class="section">
   <div class="section-wrap">
     <div class="section-header">
@@ -356,6 +357,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
   </div>
 </div>
 
+<!-- QUIZ -->
 <div id="section-quiz" class="section">
   <div class="quiz-wrap">
     <div class="quiz-hero">
@@ -399,6 +401,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
   </div>
 </div>
 
+<!-- LEADERBOARD -->
 <div id="section-leaderboard" class="section">
   <div class="section-wrap">
     <div class="section-header">
@@ -406,6 +409,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
       <h2>Leaderboard</h2>
       <p>Top scorers from the Ritual community. Complete all modules and take the quiz to appear here.</p>
     </div>
+
     <button class="btn-primary" onclick="loadLB()" style="font-size:11px">↻ Refresh</button>
     <div class="lb-table">
       <div class="lb-head"><div>#</div><div>Member</div><div style="text-align:right">Score</div><div style="text-align:right">Date</div></div>
@@ -418,10 +422,7 @@ h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(-
 </main>
 
 <script>
-// Point to our secure serverless function instead of directly hitting JSONBin
-const CONFIG = {
-  api_url: '/api/leaderboard'
-};
+// Scores are handled server-side via /api/scores — no keys in the client.
 
 /* ─── DISCORD PROMPT ─── */
 let currentUser = '';
@@ -1161,9 +1162,10 @@ function retryFinalQuiz(){
   document.getElementById('quiz-ready-block').style.display='block';
 }
 
-/* ─── LEADERBOARD (UPDATED TO HIT YOUR NEW VERCEL BACKEND) ─── */
-function lsLoad(){try{return JSON.parse(localStorage.getItem('ritual_lb_scores')||'[]');}catch{return[];}}
-function lsSave(s){try{localStorage.setItem('ritual_lb_scores',JSON.stringify(s));}catch{}}
+/* ─── LEADERBOARD ─── */
+const LS_KEY='ritual_lb_scores';
+function lsLoad(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch{return[];}}
+function lsSave(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s));}catch{}}
 function mergeScores(a,b){
   const m={};
   [...a,...b].forEach(s=>{const k=s.name.toLowerCase();if(!m[k]||s.score>m[k].score)m[k]=s;});
@@ -1172,21 +1174,22 @@ function mergeScores(a,b){
 
 async function saveFinalScore(name,score,tier){
   const entry={name,score,tier,date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})};
+  // Always save locally first — score is never lost even if network fails
   const local=lsLoad();
   const idx=local.findIndex(s=>s.name.toLowerCase()===name.toLowerCase());
   if(idx>=0){if(score>local[idx].score)local[idx]=entry;}else local.push(entry);
   local.sort((a,b)=>b.score-a.score); lsSave(local);
-  
+  // POST to /api/scores — server reads keys from env vars, never exposed to browser
   try{
-    const wRes = await fetch(CONFIG.api_url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-ritual-secret': 'PROTOCOL_ACTIVE' },
-      body: JSON.stringify(entry)
+    const res=await fetch('/api/scores',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,score,tier,date:entry.date})
     });
-    if(!wRes.ok) throw new Error('Write HTTP '+wRes.status);
-    const wData = await wRes.json();
-    lsSave(wData.scores);
-  } catch(e) { console.warn('Backend sync failed — saved locally.', e.message); }
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(data.scores) lsSave(data.scores);
+  }catch(e){console.warn('Score sync failed — saved locally.',e.message);}
 }
 
 async function loadLB(){
@@ -1194,13 +1197,15 @@ async function loadLB(){
   body.innerHTML='<div class="lb-loading">// Loading rankings...</div>';
   let scores=[],source='local';
   try{
-    const res = await fetch(CONFIG.api_url);
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    scores = mergeScores(data.scores || [], lsLoad());
+    const res=await fetch('/api/scores');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    scores=mergeScores(data.scores||[],lsLoad());
     lsSave(scores); source='remote';
-  } catch(e) { console.warn('Remote load failed.', e.message); scores=lsLoad(); }
-
+  }catch(e){
+    console.warn('Remote load failed, using local cache.',e.message);
+    scores=lsLoad();
+  }
   if(!scores.length){body.innerHTML='<div class="lb-empty">// No scores yet — complete all modules and take the final quiz.</div>';return;}
   const M=['🥇','🥈','🥉'];
   body.innerHTML=scores.map((s,i)=>`
@@ -1210,7 +1215,7 @@ async function loadLB(){
       <div class="lb-score">${s.score}/${FINAL_QS.length}</div>
       <div class="lb-date">${s.date||'—'}</div>
     </div>`).join('')+
-  (source==='local'?`<div style="padding:8px 18px;font-family:var(--mono);font-size:9px;color:var(--text-faint);border-top:1px solid var(--border-dim);letter-spacing:.08em">// local scores only — host this file on a server for live cross-user rankings</div>`:'');
+  (source==='local'?`<div style="padding:8px 18px;font-family:var(--mono);font-size:9px;color:var(--text-faint);border-top:1px solid var(--border-dim);letter-spacing:.08em">// local cache — open leaderboard once deployed to see live rankings</div>`:'');
 }
 loadLB();
 
