@@ -1,12 +1,11 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 
-// === CONFIGURATION (SECURTY MITIGATION) ===
-const API_ENDPOINT = '/api/leaderboard'; // Calls your backend proxy instead of Jsonbin directly.
+// === CONFIGURATION (SECURITY MITIGATION) ===
+const API_ENDPOINT = '/api/leaderboard'; 
 
-// === MODULE DATA (UNCHANGED COPY) ===
+// === MODULE DATA ===
 const MODULES = [
   {
     id:'origin', num:'01', icon:'🌐', title:'The Big Picture',
@@ -286,7 +285,7 @@ const MODULES = [
       {q:'A zero knowledge proof lets you prove something is true. What is the key property?',opts:['The proof reveals all supporting data so anyone can double-check it','The proof is faster to generate than a standard signature','No information about why the statement is true is revealed — only that it is','The proof requires a trusted third party to countersign it'],ans:2,exp:'Zero knowledge proofs are a cryptographic technique where you prove a claim is true without disclosing any information about the underlying data. You can prove you know a password without revealing it, or that a transaction is valid without showing the amounts.'},
       {q:'What is a Trusted Execution Environment?',opts:['A dedicated server room with physical security controls','A type of smart contract that locks funds until conditions are met','A regulated environment where AI models must be approved before running','A hardware-isolated processor region where code runs with privacy guarantees the machine owner cannot override'],ans:3,exp:'A TEE is built into the processor chip itself. Code inside it cannot be observed or modified — not even by the person who owns the machine. Results come with hardware attestations proving the secure environment was genuine.'},
       {q:'Which of these is a realistic use case for TEE execution on Ritual?',opts:['Making all transactions on the network anonymous by default','Speeding up ZK proof generation significantly','Running AI inference on sensitive medical data without exposing it to the node operator','Replacing Symphony as the consensus mechanism for private transactions'],ans:2,exp:'TEEs create isolated execution where inputs remain private. A healthcare application can run AI inference on patient data without the node operator ever seeing those inputs — the TEE hardware guarantees it.'},
-      {q:'What did developers have to use before Scheduled Transactions existed, and what was the risk?',opts:['Manual multi-sig approvals that required online coordinators','External keeper bot services that could go offline, preventing the scheduled action from firing','Separate layer-2 blockchains dedicated to time-based logic','Governance proposals that had a 48-hour delay built in'],ans:1,exp:"Keeper bots were the standard workaround — external services watching for conditions and submitting transactions. If a keeper goes down, your scheduled action did not fire. Ritual makes scheduling native so registered invocations execute automatically."},
+      {q:'What did developers have to use before Scheduled Transactions existed, and what was the risk?',opts:['Manual multi-sig approvals that required online coordinators','External keeper bot services that could go offline, preventing the scheduled action from firing','Separate layer-2 blockchains dedicated to time-based logic','Governance proposals that had a 48-hour delay built in'],ans:1,exp:"Keeper bots were the standard workaround — external services watching for conditions and submitting transactions. If a keeper went down, your scheduled action did not fire. Ritual makes scheduling native so registered invocations execute automatically."},
       {q:'An Ethereum developer wants to use their existing Solidity contracts on Ritual and also call an AI model. What does EVM++ mean for them?',opts:['They must rewrite their contracts in a new Ritual-specific language','They can run their existing contracts unchanged and call AI precompiles as native operations from the same code','They need to deploy a separate contract on a sidechain to access AI features','EVM++ only works with new contracts written specifically for Ritual'],ans:3,exp:"EVM++ maintains full Ethereum compatibility — existing Solidity contracts run without modification. The ++ part adds heterogeneous compute precompiles, so the same contract can transfer tokens and invoke an AI inference in the same transaction."}
     ]
   },
@@ -326,7 +325,7 @@ const MODULES = [
   }
 ];
 
-// === GLOSSARY DATA (UNCHANGED COPY) ===
+// === GLOSSARY DATA ===
 const GLOSSARY=[
   {term:'Ritual',tag:'core',tl:'Core',def:'A next generation blockchain designed to run complex computations — including AI inference, ZK proofs, and TEE execution — natively on chain, with the same security guarantees as a traditional blockchain.',eli5:'Like Ethereum, but the smart contracts can actually think, prove things, and keep secrets.'},
   {term:'Symphony',tag:'infra',tl:'Infrastructure',def:"Ritual's consensus protocol. Extends Gasper with proof sharding, attested committees, and distributed verification, letting the network reach agreement on heterogeneous compute transactions without bottlenecks.",eli5:'The rulebook all computers follow to agree on what happened — rewritten for AI and complex tasks, not just simple transfers.'},
@@ -360,7 +359,7 @@ const GLOSSARY=[
   {term:'Attestation',tag:'infra',tl:'Infrastructure',def:"A cryptographic certificate proving a computation happened in a specific way or environment. TEE attestations prove code ran in a genuine secure enclave. Used throughout Ritual to make trust assumptions explicit and verifiable.",eli5:'A signed certificate saying "yes, this really happened the way we said it did." Cryptography you can check rather than a promise to believe.'}
 ];
 
-// === FINAL QUIZ DATA (UNCHANGED COPY) ===
+// === FINAL QUIZ DATA ===
 const FINAL_QS=[
   {q:'In the EOVMT model, what does the rest of the network do after the executing node finishes?',opts:['Re-runs the computation to confirm the result','Verifies a cryptographic proof of correct execution rather than repeating the work','Votes on whether to accept the result','Waits for a second node to independently run the same computation'],ans:1,diff:'advanced',exp:'EOVMT stands for Execute Once, Verify Many Times. The heavy computation runs once on a specialized node. The rest of the network verifies a cryptographic proof — much cheaper than re-running it — while maintaining the same security guarantees.'},
   {q:'What existing Ethereum mechanism did Symphony extend, and what did it add?',opts:['It extended Gasper with proof sharding, attested committees, and distributed verification for heterogeneous compute','It replaced proof-of-work with proof-of-stake adding faster finality','It replaced Gasper entirely with a new algorithm optimized for AI workloads','It extended Tendermint with specialized committees for different transaction types'],ans:0,diff:'advanced',exp:"Symphony extends Gasper — Ethereum's consensus mechanism — rather than replacing it. The additions (proof sharding, attested committees, distributed verification) allow Symphony to handle diverse compute types simultaneously without bottlenecking."},
@@ -423,7 +422,7 @@ export default function RitualLearnHub() {
       }
     }
 
-    // 3. Kick off silent leaderboard fetch (secure GET)
+    // 3. Kick off silent leaderboard fetch
     fetchLeaderboard();
   }, []);
 
@@ -456,7 +455,6 @@ export default function RitualLearnHub() {
   // === NAVIGATION ===
   const changeSection = (sectionName: string) => {
     if (sectionName === 'quiz' && navQuizLocked) {
-      // Don't change section, just reset the quiz start screen
       document.getElementById('quiz-locked-msg')!.style.display = 'block';
       return;
     }
@@ -465,15 +463,14 @@ export default function RitualLearnHub() {
     window.scrollTo(0, 0);
   };
 
-  // === LEADERBOARD LOGIC (SECURE) ===
+  // === LEADERBOARD LOGIC ===
   const fetchLeaderboard = async () => {
     setLbLoading(true);
     try {
-      const res = await fetch(API_ENDPOINT); // Secure GET request to backend
+      const res = await fetch(API_ENDPOINT);
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       
-      // Merge logic (always trust the server, but handle local anomalies)
       const remoteScores = data.record?.scores || data.scores || [];
       const m: Record<string, any> = {};
       remoteScores.forEach((s: any) => m[s.name.toLowerCase()] = s);
@@ -491,10 +488,12 @@ export default function RitualLearnHub() {
     const payload = { name, score, tier, date: dateStr };
 
     try {
-      // Secure POST request to backend proxy
       const res = await fetch(API_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Ritual-Learn-Secret': 'PROTOCOL_SIGNAL_ACTIVE' 
+        },
         body: JSON.stringify(payload)
       });
 
@@ -510,8 +509,6 @@ export default function RitualLearnHub() {
   };
 
   // === SUB-COMPONENTS ===
-
-  // 1. Progress Bar
   const ProgressBar = () => {
     const total = MODULES.length;
     const done = completedModules.length;
@@ -527,7 +524,6 @@ export default function RitualLearnHub() {
     );
   };
 
-  // 2. Module Grid/Reader
   const ModuleView = () => {
     if (activeModule) {
       const steps = activeModule.steps;
@@ -569,9 +565,7 @@ export default function RitualLearnHub() {
                 </div>
               )}
 
-              {/* Step Navigation or Quiz */}
               {isLastStep ? (
-                // MODULE QUIZ INTERFACE
                 <div className="module-quiz-wrap" id="mq-wrap">
                   <div className="mq-title">// Module Quiz</div>
                   <div className="mq-heading">{activeModule.title}: Knowledge Check</div>
@@ -644,8 +638,6 @@ export default function RitualLearnHub() {
     );
   };
 
-  // 3. Module Quiz running state
-  const [mqStarted, setMqStarted] = useState(false);
   const startModuleQuiz = (mod: any) => {
     setMqIdx(0); setMqScore(0); setMqAnswered(false); setMqShowResult(false); setMqStarted(true);
   };
@@ -659,13 +651,25 @@ export default function RitualLearnHub() {
       if (mqAnswered) return;
       setMqAnswered(true);
       const correct = idx === q.ans;
-      document.getElementById(`mq-opt-${idx}`)!.classList.add(correct ? 'correct' : 'wrong');
-      if (!correct) document.getElementById(`mq-opt-${q.ans}`)!.classList.add('reveal');
+      
+      const btn = document.getElementById(`mq-opt-${idx}`);
+      if (btn) btn.classList.add(correct ? 'correct' : 'wrong');
+      
+      if (!correct) {
+        const correctBtn = document.getElementById(`mq-opt-${q.ans}`);
+        if (correctBtn) correctBtn.classList.add('reveal');
+      }
+      
       if (correct) setMqScore(prev => prev + 1);
       
-      const exp = document.getElementById('mq-exp')!;
-      exp.textContent = q.exp; exp.className = 'mq-exp show';
-      document.getElementById('mq-next')!.style.display = 'inline-block';
+      const exp = document.getElementById('mq-exp');
+      if (exp) {
+        exp.textContent = q.exp; 
+        exp.className = 'mq-exp show';
+      }
+      
+      const nextBtn = document.getElementById('mq-next');
+      if (nextBtn) nextBtn.style.display = 'inline-block';
     };
 
     const nextQuestion = () => {
@@ -674,10 +678,11 @@ export default function RitualLearnHub() {
       } else {
         setMqIdx(mqIdx + 1);
         setMqAnswered(false);
-        // Clean up classes for next Q
         document.querySelectorAll('.mq-opt').forEach(o => o.className = 'mq-opt');
-        document.getElementById('mq-exp')!.className = 'mq-exp';
-        document.getElementById('mq-next')!.style.display = 'none';
+        const exp = document.getElementById('mq-exp');
+        if (exp) exp.className = 'mq-exp';
+        const nextBtn = document.getElementById('mq-next');
+        if (nextBtn) nextBtn.style.display = 'none';
       }
     };
 
@@ -704,7 +709,7 @@ export default function RitualLearnHub() {
   const ModuleQuizResult = ({ mod }: { mod: any }) => {
     const passed = mqScore === mod.quiz.length;
     if (passed) updateProgress(mod.id);
-    const allDone = completedModules.length === MODULES.length; // Will check next render
+    const allDone = completedModules.length === MODULES.length; 
 
     return (
       <div className="mq-result">
@@ -727,7 +732,6 @@ export default function RitualLearnHub() {
     );
   };
 
-  // 4. Glossary
   const GlossaryView = () => {
     const filtered = glossaryQuery
       ? GLOSSARY.filter(t => t.term.toLowerCase().includes(glossaryQuery) || t.def.toLowerCase().includes(glossaryQuery) || t.eli5.toLowerCase().includes(glossaryQuery))
@@ -761,7 +765,6 @@ export default function RitualLearnHub() {
     );
   };
 
-  // 5. Leaderboard
   const LeaderboardView = () => (
     <div className="section-wrap">
       <div className="section-header">
@@ -792,7 +795,6 @@ export default function RitualLearnHub() {
     </div>
   );
 
-  // 6. Final Quiz
   const [fqStarted, setFqStarted] = useState(false);
   const [fqCur, setFqCur] = useState(0);
   const [fqScore, setFqScore] = useState(0);
@@ -812,19 +814,30 @@ export default function RitualLearnHub() {
       if (fqAnswered) return;
       setFqAnswered(true);
       const correct = idx === q.ans;
-      document.getElementById(`fq-opt-${idx}`)!.classList.add(correct ? 'correct' : 'wrong');
-      if (!correct) document.getElementById(`fq-opt-${q.ans}`)!.classList.add('reveal');
+      
+      const btn = document.getElementById(`fq-opt-${idx}`);
+      if (btn) btn.classList.add(correct ? 'correct' : 'wrong');
+      
+      if (!correct) {
+        const correctBtn = document.getElementById(`fq-opt-${q.ans}`);
+        if (correctBtn) correctBtn.classList.add('reveal');
+      }
+      
       if (correct) setFqScore(prev => prev + 1);
       
-      const exp = document.getElementById('q-exp')!;
-      exp.textContent = q.exp; exp.className = 'q-exp show';
-      document.getElementById('q-next')!.style.display = 'inline-block';
+      const exp = document.getElementById('q-exp');
+      if (exp) {
+        exp.textContent = q.exp; 
+        exp.className = 'q-exp show';
+      }
+      
+      const nextBtn = document.getElementById('q-next');
+      if (nextBtn) nextBtn.style.display = 'inline-block';
     };
 
     const nextFinalQ = () => {
       if (fqCur + 1 >= FINAL_QS.length) {
-        // Compute final result
-        const finalS = fqScore; // Needs current score as setFqScore hasn't committed yet
+        const finalS = fqScore;
         let tier, msg;
         if (finalS >= 18) { tier = '🔮 Ascendant Ritualist'; msg = 'The protocol recognizes you. You were built different.'; }
         else if (finalS >= 14) { tier = '✦ Ritualist'; msg = 'You have done the work. The chain has taken note.'; }
@@ -838,10 +851,11 @@ export default function RitualLearnHub() {
       } else {
         setFqCur(fqCur + 1);
         setFqAnswered(false);
-        // Clean up
         document.querySelectorAll('.q-opt').forEach(o => o.className = 'q-opt');
-        document.getElementById('q-exp')!.className = 'q-exp';
-        document.getElementById('q-next')!.style.display = 'none';
+        const exp = document.getElementById('q-exp');
+        if (exp) exp.className = 'q-exp';
+        const nextBtn = document.getElementById('q-next');
+        if (nextBtn) nextBtn.style.display = 'none';
       }
     };
 
@@ -898,7 +912,7 @@ export default function RitualLearnHub() {
   // === RENDER ROOT ===
   return (
     <>
-      <style global jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         :root{
           --bg:#080808;--surface:#0f0f0f;--surface2:#141414;
@@ -924,7 +938,6 @@ export default function RitualLearnHub() {
         .dm-corners span:nth-child(2){top:0;right:0;border-width:1px 1px 0 0}
         .dm-corners span:nth-child(3){bottom:0;left:0;border-width:0 0 1px 1px}
         .dm-corners span:nth-child(4){bottom:0;right:0;border-width:0 1px 1px 0}
-        /* OLD CIRCLE MARK REPLACED */
         .discord-modal .modal-logo-mark { display: none; }
         .dm-title{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:.04em}
         .dm-sub{font-size:13px;color:var(--text-dim);margin-bottom:28px;line-height:1.6}
@@ -932,15 +945,12 @@ export default function RitualLearnHub() {
         .dm-input{width:100%;font-family:var(--mono);font-size:14px;color:var(--text);background:var(--surface2);border:1px solid var(--border-dim);border-radius:2px;padding:13px 16px;outline:none;margin-bottom:16px;transition:border-color .15s;letter-spacing:.06em}
         .dm-input:focus{border-color:var(--green);box-shadow:0 0 10px var(--green-trace)}
         .dm-error{font-family:var(--mono);font-size:10px;color:#f87171;margin-bottom:12px;display:none;letter-spacing:.04em}
-        /* NEW Modal Logo Asset class */
         .modal-logo { height: 32px; width: auto; object-fit: contain; margin: 0 auto 20px; filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--green-glow)); }
 
         /* ── NAV ── */
         nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px}
         .nav-logo{display:flex;align-items:center;gap:6px;font-family:var(--serif);font-size:15px;font-weight:700;color:#fff;letter-spacing:.08em;text-transform:uppercase}
-        /* OLD LOGO MARK REMOVED */
         .logo-mark { display: none; }
-        /* NEW NAV LOGO ASSET CLASS (REQUESTED CHANGE) */
         .nav-logo-img { height: 28px; width: auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--green-glow)); }
         .nav-sep{color:var(--text-faint);margin:0 4px;font-weight:300}
         .nav-sub{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.12em;opacity:.7}
@@ -1172,14 +1182,13 @@ export default function RitualLearnHub() {
           .result-score{font-size:52px}.result-card{padding:28px 20px}
           .discord-modal{padding:32px 24px}
         }
-      `}</style>
+      `}} />
 
       {/* DISCORD PROMPT OVERLAY */}
       {!currentUser && (
         <div id="discord-overlay">
           <div className="discord-modal">
             <div className="dm-corners"><span></span><span></span><span></span><span></span></div>
-            {/* NEW MODAL LOGO (REQUESTED CHANGE) */}
             <img src="/logo.png" alt="Ritual" className="modal-logo" /> 
             <div className="dm-title">Welcome to Ritual Learn</div>
             <p className="dm-sub">Enter your Discord username to get started. Your progress and quiz scores will be saved under this name.</p>
@@ -1194,7 +1203,6 @@ export default function RitualLearnHub() {
       {/* NAV */}
       <nav>
         <div className="nav-logo">
-          {/* NEW NAV LOGO (REQUESTED CHANGE) */}
           <img src="/logo.png" alt="Ritual Logo" className="nav-logo-img" />
           Ritual<span className="nav-sep">|</span><span className="nav-sub">Learn</span>
         </div>
