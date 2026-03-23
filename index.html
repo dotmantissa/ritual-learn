@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ritual | Learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--surface:#0f0f0f;--surface2:#141414;
+  --green:#5AFD8E;--green-glow:rgba(90,253,142,.45);--green-dim:rgba(90,253,142,.12);--green-trace:rgba(90,253,142,.06);
+  --gold:#DE9A51;--gold-glow:rgba(222,154,81,.4);
+  --text:#e8e8e8;--text-dim:#888;--text-faint:#444;
+  --border:rgba(90,253,142,.15);--border-dim:rgba(90,253,142,.07);
+  --serif:'Cinzel',serif;--body:'Rajdhani',sans-serif;--mono:'Share Tech Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px)}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(90,253,142,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(90,253,142,.025) 1px,transparent 1px);background-size:48px 48px}
+
+/* ── DISCORD PROMPT OVERLAY ── */
+#discord-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+#discord-overlay.hidden{display:none}
+.discord-modal{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:48px 40px;max-width:420px;width:100%;text-align:center;position:relative}
+.discord-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);box-shadow:0 0 12px var(--green-glow)}
+.dm-corners{position:absolute;inset:0;pointer-events:none}
+.dm-corners span{position:absolute;width:16px;height:16px;border-color:var(--green);border-style:solid;opacity:.6}
+.dm-corners span:nth-child(1){top:0;left:0;border-width:1px 0 0 1px}
+.dm-corners span:nth-child(2){top:0;right:0;border-width:1px 1px 0 0}
+.dm-corners span:nth-child(3){bottom:0;left:0;border-width:0 0 1px 1px}
+.dm-corners span:nth-child(4){bottom:0;right:0;border-width:0 1px 1px 0}
+
+/* LOGO UPDATES */
+.modal-logo { display: block; margin: 0 auto 20px; height: 36px; width: auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--green-glow)); }
+.nav-logo-img { height: 28px; width: auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 0 6px var(--green-glow)); }
+
+.dm-title{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:.04em}
+.dm-sub{font-size:13px;color:var(--text-dim);margin-bottom:28px;line-height:1.6}
+.dm-label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;text-align:left}
+.dm-input{width:100%;font-family:var(--mono);font-size:14px;color:var(--text);background:var(--surface2);border:1px solid var(--border-dim);border-radius:2px;padding:13px 16px;outline:none;margin-bottom:16px;transition:border-color .15s;letter-spacing:.06em}
+.dm-input:focus{border-color:var(--green);box-shadow:0 0 10px var(--green-trace)}
+.dm-error{font-family:var(--mono);font-size:10px;color:#f87171;margin-bottom:12px;display:none;letter-spacing:.04em}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:15px;font-weight:700;color:#fff;letter-spacing:.08em;text-transform:uppercase}
+.nav-sep{color:var(--text-faint);margin:0 4px;font-weight:300}
+.nav-sub{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.12em;opacity:.7}
+.nav-links{display:flex;gap:2px}
+.nav-btn{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);background:none;border:none;cursor:pointer;padding:6px 16px;border-radius:2px;transition:all .15s;position:relative}
+.nav-btn::after{content:'';position:absolute;bottom:0;left:16px;right:16px;height:1px;background:var(--green);transform:scaleX(0);transition:transform .2s}
+.nav-btn:hover{color:var(--text)}.nav-btn:hover::after{transform:scaleX(1)}
+.nav-btn.active{color:var(--green)}.nav-btn.active::after{transform:scaleX(1)}
+.nav-btn.locked{color:var(--text-faint);cursor:not-allowed}
+.nav-btn.locked:hover{color:var(--text-faint)}.nav-btn.locked::after{display:none}
+.nav-user{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:.08em;opacity:.7;display:flex;align-items:center;gap:6px}
+.nav-user-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+
+/* ── MAIN ── */
+main{padding-top:56px;position:relative;z-index:1}
+.section{display:none;min-height:calc(100vh - 56px)}.section.active{display:block}
+
+/* ── CORNERS ── */
+.corners{position:absolute;inset:0;pointer-events:none;z-index:2}
+.corners span{position:absolute;width:16px;height:16px;border-color:var(--green);border-style:solid;opacity:.5}
+.corners span:nth-child(1){top:0;left:0;border-width:1px 0 0 1px}
+.corners span:nth-child(2){top:0;right:0;border-width:1px 1px 0 0}
+.corners span:nth-child(3){bottom:0;left:0;border-width:0 0 1px 1px}
+.corners span:nth-child(4){bottom:0;right:0;border-width:0 1px 1px 0}
+
+/* ── HERO ── */
+.hero{padding:64px 40px 40px;max-width:900px;margin:0 auto;text-align:center}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--green);margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:12px}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:40px;height:1px;background:var(--green);opacity:.4}
+h1.hero-title{font-family:var(--serif);font-size:clamp(28px,5vw,58px);font-weight:900;line-height:1.1;color:#fff;margin-bottom:8px;text-shadow:0 0 40px rgba(90,253,142,.1)}
+h1.hero-title em{font-style:italic;color:var(--green);text-shadow:0 0 24px var(--green-glow)}
+.hero-sub{font-family:var(--body);font-size:15px;color:var(--text-dim);max-width:480px;margin:16px auto 0;line-height:1.75}
+
+/* ── PROGRESS BAR ── */
+.progress-section{max-width:960px;margin:32px auto 0;padding:0 40px}
+.progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.progress-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint)}
+.progress-count{font-family:var(--mono);font-size:12px;color:var(--green)}
+.progress-track{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:1px;transition:width .5s ease;box-shadow:0 0 8px var(--green-glow)}
+
+/* ── MODULE GRID ── */
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;max-width:960px;margin:24px auto 0;padding:0 40px 80px}
+.module-card{position:relative;border:1px solid var(--border-dim);border-radius:4px;padding:22px;cursor:pointer;background:var(--surface);transition:all .2s;overflow:hidden}
+.module-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--green-dim),transparent 70%);opacity:0;transition:opacity .3s}
+.module-card:hover:not(.locked-card){border-color:var(--green);box-shadow:0 0 20px var(--green-trace),inset 0 0 20px var(--green-trace)}
+.module-card:hover:not(.locked-card)::before{opacity:1}
+.module-card:hover:not(.locked-card) .corners span{opacity:.7}
+.module-card .corners span{opacity:.2}
+.module-card.completed-card{border-color:rgba(90,253,142,.3)}
+.module-card.completed-card .corners span{opacity:.5;border-color:var(--green)}
+.module-num{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--text-faint);margin-bottom:10px;position:relative}
+.module-icon{font-size:20px;margin-bottom:10px;position:relative}
+.module-title{font-family:var(--serif);font-size:15px;font-weight:700;color:#fff;margin-bottom:5px;position:relative;letter-spacing:.03em}
+.module-desc{font-size:12px;color:var(--text-dim);line-height:1.5;position:relative}
+.module-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;position:relative}
+.module-tag{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px}
+.tag-foundation{background:rgba(90,253,142,.08);color:var(--green);border:1px solid rgba(90,253,142,.18)}
+.tag-architecture{background:rgba(222,154,81,.07);color:var(--gold);border:1px solid rgba(222,154,81,.2)}
+.tag-ecosystem{background:rgba(52,152,219,.07);color:#3498DB;border:1px solid rgba(52,152,219,.2)}
+.module-status{font-family:var(--mono);font-size:9px;letter-spacing:.08em}
+.status-done{color:var(--green)}
+.status-todo{color:var(--text-faint)}
+
+/* ── LEARN CONTENT ── */
+.learn-content{max-width:740px;margin:0 auto;padding:0 40px 80px}
+.learn-back{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border:none;background:none;padding:0;margin-bottom:36px;transition:color .15s}
+.learn-back:hover{color:var(--green)}
+.learn-progress{display:flex;align-items:center;gap:6px;margin-bottom:44px}
+.prog-step{flex:1;height:2px;border-radius:1px;background:rgba(255,255,255,.07);transition:background .3s}
+.prog-step.done{background:var(--green);box-shadow:0 0 6px var(--green-glow)}
+.prog-step.cur{background:rgba(90,253,142,.5)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.learn-step{display:none}.learn-step.active{display:block;animation:fadeUp .4s ease}
+.step-num{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.step-num::after{content:'';flex:1;height:1px;background:var(--border)}
+.step-title{font-family:var(--serif);font-size:clamp(20px,3.2vw,32px);font-weight:700;line-height:1.2;color:#fff;margin-bottom:22px}
+.step-body{font-size:15px;color:#aaa;line-height:1.85;margin-bottom:24px}
+.step-body p{margin-bottom:14px}.step-body p:last-child{margin-bottom:0}
+.callout{border:1px solid rgba(90,253,142,.2);border-left:2px solid var(--green);background:rgba(90,253,142,.04);padding:14px 18px;border-radius:0 4px 4px 0;margin:22px 0;font-size:14px;color:#bbb}
+.callout strong{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:5px}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}
+.concept-card{background:var(--surface2);border:1px solid var(--border-dim);border-radius:4px;padding:14px;transition:border-color .15s}
+.concept-card:hover{border-color:var(--border)}
+.cc-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--green);margin-bottom:5px;opacity:.7}
+.cc-title{font-family:var(--serif);font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;letter-spacing:.03em}
+.cc-desc{font-size:12px;color:var(--text-dim);line-height:1.5}
+.step-nav{display:flex;align-items:center;justify-content:space-between;margin-top:44px;padding-top:18px;border-top:1px solid var(--border-dim)}
+
+/* ── MODULE QUIZ ── */
+.module-quiz-wrap{background:var(--surface);border:1px solid var(--border-dim);border-radius:4px;padding:32px;margin-top:40px;position:relative;overflow:hidden}
+.module-quiz-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.5}
+.mq-title{font-family:var(--mono);font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--green);margin-bottom:6px}
+.mq-heading{font-family:var(--serif);font-size:18px;font-weight:700;color:#fff;margin-bottom:20px;letter-spacing:.03em}
+.mq-prog-bar{height:2px;background:rgba(255,255,255,.05);border-radius:1px;margin-bottom:28px;overflow:hidden}
+.mq-prog-fill{height:100%;background:var(--green);border-radius:1px;transition:width .4s ease;box-shadow:0 0 6px var(--green-glow)}
+.mq-q-num{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px}
+.mq-q-text{font-family:var(--serif);font-size:clamp(15px,2.2vw,19px);font-weight:700;color:#fff;line-height:1.35;margin-bottom:20px}
+.mq-options{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.mq-opt{font-family:var(--body);font-size:14px;font-weight:500;color:#aaa;background:var(--surface2);border:1px solid var(--border-dim);border-radius:2px;padding:12px 16px;cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:center;gap:12px}
+.mq-opt:hover:not(:disabled){border-color:var(--green);color:var(--text);background:rgba(90,253,142,.03)}
+.mq-opt.correct{border-color:#22C55E;background:rgba(34,197,94,.06);color:#4ade80}
+.mq-opt.wrong{border-color:#EF4444;background:rgba(239,68,68,.05);color:#f87171}
+.mq-opt.reveal{border-color:#22C55E;background:rgba(34,197,94,.06);color:#4ade80}
+.mq-opt:disabled{cursor:default}
+.mq-opt-l{font-family:var(--mono);font-size:10px;width:20px;height:20px;border-radius:1px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mq-opt.correct .mq-opt-l{background:rgba(34,197,94,.2);border-color:#22C55E;color:#4ade80}
+.mq-opt.wrong .mq-opt-l{background:rgba(239,68,68,.15);border-color:#EF4444;color:#f87171}
+.mq-opt.reveal .mq-opt-l{background:rgba(34,197,94,.2);border-color:#22C55E;color:#4ade80}
+.mq-exp{border-left:2px solid var(--green);background:rgba(90,253,142,.04);padding:12px 16px;font-size:13px;color:#888;margin-bottom:18px;display:none;line-height:1.6;border-radius:0 2px 2px 0}
+.mq-exp.show{display:block;animation:fadeUp .3s ease}
+.mq-result{text-align:center;padding:20px 0 8px}
+.mq-result-score{font-family:var(--serif);font-size:52px;font-weight:900;color:var(--green);text-shadow:0 0 24px var(--green-glow)}
+.mq-result-score span{font-size:22px;opacity:.4}
+.mq-result-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px}
+.mq-result-msg{font-size:14px;color:var(--text-dim);margin-bottom:24px;line-height:1.6}
+.mq-result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.mq-fail-note{font-family:var(--mono);font-size:10px;color:#f87171;margin-top:12px;letter-spacing:.04em;text-align:center}
+
+/* ── BUTTONS ── */
+.btn-primary{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;background:transparent;color:var(--green);border:1px solid var(--green);cursor:pointer;padding:11px 28px;border-radius:2px;transition:all .15s}
+.btn-primary:hover{background:rgba(90,253,142,.08);box-shadow:0 0 16px var(--green-glow)}
+.btn-ghost{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:11px 24px;border-radius:2px;transition:all .15s}
+.btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.25)}
+.btn-amber{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;background:transparent;color:var(--gold);border:1px solid var(--gold);cursor:pointer;padding:11px 28px;border-radius:2px;transition:all .15s}
+.btn-amber:hover{background:rgba(222,154,81,.08);box-shadow:0 0 16px var(--gold-glow)}
+
+/* ── SECTION WRAPPER ── */
+.section-wrap{max-width:800px;margin:0 auto;padding:60px 40px 80px}
+.s-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--green);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.s-eyebrow::before{content:'';width:24px;height:1px;background:var(--green);opacity:.5}
+.section-header{margin-bottom:40px}
+.section-header h2{font-family:var(--serif);font-size:clamp(22px,3.5vw,38px);font-weight:900;line-height:1.1;color:#fff;margin-bottom:10px;letter-spacing:.02em}
+.section-header p{color:var(--text-dim);font-size:15px}
+
+/* ── GLOSSARY ── */
+.search-bar{position:relative;margin-bottom:24px}
+.search-bar input{width:100%;font-family:var(--mono);font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border-dim);border-radius:2px;padding:12px 18px 12px 44px;outline:none;transition:border-color .15s;letter-spacing:.04em}
+.search-bar input:focus{border-color:var(--green);box-shadow:0 0 10px var(--green-trace)}
+.search-bar input::placeholder{color:var(--text-faint)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:16px}
+.glossary-list{display:flex;flex-direction:column;gap:2px}
+.glossary-item{border:1px solid var(--border-dim);border-radius:2px;overflow:hidden;background:var(--surface);transition:border-color .15s}
+.glossary-item:hover{border-color:var(--border)}
+.glossary-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:none;border:none;text-align:left;gap:14px}
+.g-term{font-family:var(--mono);font-size:12px;color:#ccc;letter-spacing:.06em}
+.glossary-item:hover .g-term,.glossary-item.open .g-term{color:var(--green)}
+.g-tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.tag-core{background:rgba(255,255,255,.05);color:#888;border:1px solid rgba(255,255,255,.08)}
+.tag-infra{background:rgba(90,253,142,.07);color:var(--green);border:1px solid rgba(90,253,142,.15)}
+.tag-ai{background:rgba(52,152,219,.08);color:#3498DB;border:1px solid rgba(52,152,219,.2)}
+.tag-ecosystem{background:rgba(222,154,81,.07);color:var(--gold);border:1px solid rgba(222,154,81,.2)}
+.g-chevron{color:var(--text-faint);font-size:11px;transition:transform .2s;flex-shrink:0}
+.glossary-item.open .g-chevron{transform:rotate(180deg);color:var(--green)}
+.g-body{display:none;padding:12px 16px 16px;font-size:13px;color:#888;line-height:1.75;border-top:1px solid var(--border-dim)}
+.glossary-item.open .g-body{display:block}
+.g-eli5{margin-top:8px;font-size:12px;color:var(--green);font-style:italic;opacity:.8}
+.no-results{text-align:center;color:var(--text-faint);padding:40px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;display:none}
+
+/* ── QUIZ (FINAL) ── */
+.quiz-wrap{max-width:680px;margin:0 auto;padding:60px 40px 80px}
+.quiz-hero{text-align:center;margin-bottom:44px}
+.quiz-hero h2{font-family:var(--serif);font-size:clamp(22px,3.5vw,38px);font-weight:900;color:#fff;margin-bottom:10px;letter-spacing:.02em}
+.quiz-hero p{color:var(--text-dim);max-width:440px;margin:0 auto 24px;font-size:14px}
+.quiz-meta{display:flex;justify-content:center;gap:24px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase}
+#quiz-name-screen,#quiz-main,#quiz-result{display:none}
+#quiz-start-screen{display:block;text-align:center}
+.quiz-locked-msg{background:var(--surface);border:1px solid rgba(222,154,81,.25);border-left:2px solid var(--gold);border-radius:0 4px 4px 0;padding:20px 24px;margin-bottom:24px;text-align:left}
+.quiz-locked-msg strong{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px}
+.quiz-locked-msg p{font-size:13px;color:#888;line-height:1.6}
+.name-wrap{max-width:380px;margin:0 auto}
+.name-wrap label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px}
+.name-wrap .n-input{width:100%;font-family:var(--mono);font-size:14px;color:var(--text);background:var(--surface);border:1px solid var(--border-dim);border-radius:2px;padding:12px 14px;outline:none;margin-bottom:14px;transition:border-color .15s;letter-spacing:.06em}
+.name-wrap .n-input:focus{border-color:var(--green);box-shadow:0 0 10px var(--green-trace)}
+.q-prog-bar{height:2px;background:rgba(255,255,255,.05);border-radius:1px;margin-bottom:36px;overflow:hidden}
+.q-prog-fill{height:100%;background:var(--green);border-radius:1px;transition:width .4s ease;box-shadow:0 0 8px var(--green-glow)}
+.q-num{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.q-num::after{content:'';flex:1;height:1px;background:var(--border-dim)}
+.q-text{font-family:var(--serif);font-size:clamp(16px,2.5vw,22px);font-weight:700;color:#fff;line-height:1.3;margin-bottom:24px}
+.q-diff{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-left:10px;vertical-align:middle}
+.diff-beginner{background:rgba(90,253,142,.08);color:var(--green);border:1px solid rgba(90,253,142,.2)}
+.diff-advanced{background:rgba(222,154,81,.08);color:var(--gold);border:1px solid rgba(222,154,81,.2)}
+.q-options{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.q-opt{font-family:var(--body);font-size:14px;font-weight:500;color:#aaa;background:var(--surface);border:1px solid var(--border-dim);border-radius:2px;padding:13px 16px;cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:center;gap:12px}
+.q-opt:hover:not(:disabled){border-color:var(--green);color:var(--text);background:rgba(90,253,142,.03);box-shadow:0 0 10px var(--green-trace)}
+.q-opt.correct{border-color:#22C55E;background:rgba(34,197,94,.06);color:#4ade80}
+.q-opt.wrong{border-color:#EF4444;background:rgba(239,68,68,.05);color:#f87171}
+.q-opt.reveal{border-color:#22C55E;background:rgba(34,197,94,.06);color:#4ade80}
+.q-opt:disabled{cursor:default}
+.opt-l{font-family:var(--mono);font-size:10px;width:22px;height:22px;border-radius:1px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.q-opt.correct .opt-l{background:rgba(34,197,94,.2);border-color:#22C55E;color:#4ade80}
+.q-opt.wrong .opt-l{background:rgba(239,68,68,.15);border-color:#EF4444;color:#f87171}
+.q-opt.reveal .opt-l{background:rgba(34,197,94,.2);border-color:#22C55E;color:#4ade80}
+.q-exp{border-left:2px solid var(--green);background:rgba(90,253,142,.04);border-radius:0 2px 2px 0;padding:12px 16px;font-size:13px;color:#888;margin-bottom:20px;display:none;line-height:1.65}
+.q-exp.show{display:block;animation:fadeUp .3s ease}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:44px 36px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);box-shadow:0 0 12px var(--green-glow)}
+.result-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(90,253,142,.06),transparent 60%);pointer-events:none}
+.result-score{font-family:var(--serif);font-size:68px;font-weight:900;color:var(--green);line-height:1;margin-bottom:4px;text-shadow:0 0 30px var(--green-glow);position:relative}
+.result-score span{font-size:26px;opacity:.4}
+.result-label{font-family:var(--mono);font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-faint);margin-bottom:24px;position:relative}
+.result-tier{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;position:relative;letter-spacing:.04em}
+.result-msg{font-size:13px;color:var(--text-dim);max-width:320px;margin:0 auto 28px;position:relative;line-height:1.6}
+.result-actions{display:flex;gap:10px;justify-content:center;position:relative}
+
+/* ── LEADERBOARD ── */
+.lb-table{background:var(--surface);border:1px solid var(--border-dim);border-radius:4px;overflow:hidden;margin-top:20px;position:relative}
+.lb-table::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.5}
+.lb-head{display:grid;grid-template-columns:50px 1fr 80px 100px;padding:11px 18px;background:rgba(90,253,142,.04);border-bottom:1px solid var(--border-dim);font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint)}
+.lb-row{display:grid;grid-template-columns:50px 1fr 80px 100px;padding:13px 18px;border-bottom:1px solid var(--border-dim);align-items:center;animation:fadeUp .3s ease;transition:background .1s}
+.lb-row:last-child{border-bottom:none}.lb-row:hover{background:rgba(90,253,142,.02)}
+.lb-rank{font-family:var(--mono);font-size:12px;color:var(--text-faint)}
+.lb-rank.r1{color:#F59E0B;text-shadow:0 0 8px rgba(245,158,11,.4)}.lb-rank.r2{color:#9CA3AF}.lb-rank.r3{color:#B45309}
+.lb-name{font-size:14px;font-weight:500;color:#ccc;display:flex;align-items:center;gap:8px}
+.lb-you{font-family:var(--mono);font-size:9px;color:var(--green);border:1px solid rgba(90,253,142,.3);padding:2px 8px;border-radius:1px;letter-spacing:.06em}
+.lb-score{font-family:var(--mono);font-size:13px;color:var(--green);text-align:right}
+.lb-date{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-align:right}
+.lb-empty,.lb-loading{padding:44px;text-align:center;color:var(--text-faint);font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.config-note{background:rgba(222,154,81,.04);border:1px solid rgba(222,154,81,.2);border-left:2px solid var(--gold);border-radius:0 2px 2px 0;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#888;line-height:1.6;display:none}
+.config-note strong{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px}
+.config-note code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:2px;color:#ccc}
+.config-note a{color:var(--gold)}.config-note a:hover{text-decoration:underline}
+.divider{display:flex;align-items:center;gap:12px;margin:28px 0 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border-dim)}
+.divider-txt{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);white-space:nowrap}
+
+@media(max-width:600px){
+  nav{padding:0 14px}.nav-links .nav-btn{padding:6px 8px;font-size:10px}
+  .hero,.learn-content,.section-wrap,.quiz-wrap{padding-left:20px;padding-right:20px}
+  .module-grid,.progress-section{padding-left:20px;padding-right:20px}
+  .concept-grid{grid-template-columns:1fr}
+  .lb-head,.lb-row{grid-template-columns:36px 1fr 56px}.lb-date{display:none}
+  .result-score{font-size:52px}.result-card{padding:28px 20px}
+  .discord-modal{padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<div id="discord-overlay">
+  <div class="discord-modal">
+    <div class="dm-corners"><span></span><span></span><span></span><span></span></div>
+    <img src="/logo.png" alt="Ritual Logo" class="modal-logo" />
+    <div class="dm-title">Welcome to Ritual Learn</div>
+    <p class="dm-sub">Enter your Discord username to get started. Your progress and quiz scores will be saved under this name.</p>
+    <label class="dm-label">Discord username</label>
+    <input class="dm-input" id="discord-input" type="text" placeholder="anon_ritualist" maxlength="40" autocomplete="off">
+    <div class="dm-error" id="discord-error">// Please enter a valid username</div>
+    <button class="btn-primary" onclick="saveDiscord()" style="width:100%;font-size:12px">Enter the Protocol →</button>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">
+    <img src="/logo.png" alt="Ritual Logo" class="nav-logo-img" />
+    Ritual<span class="nav-sep">|</span><span class="nav-sub">Learn</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px">
+    <div class="nav-user" id="nav-user" style="display:none"><div class="nav-user-dot"></div><span id="nav-username"></span></div>
+    <div class="nav-links">
+      <button class="nav-btn active" id="nav-learn" onclick="showSection('learn',this)">Learn</button>
+      <button class="nav-btn" id="nav-glossary" onclick="showSection('glossary',this)">Glossary</button>
+      <button class="nav-btn locked" id="nav-quiz" onclick="tryOpenQuiz(this)">Quiz</button>
+      <button class="nav-btn" id="nav-leaderboard" onclick="showSection('leaderboard',this)">Leaderboard</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<div id="section-learn" class="section active">
+  <div id="learn-home">
+    <div class="hero">
+      <div class="hero-eyebrow">Education Hub</div>
+      <h1 class="hero-title">Understand<br><em>Ritual</em><br>for real.</h1>
+      <p class="hero-sub">Eight modules covering every facet of the project. Complete them all to unlock the final quiz.</p>
+    </div>
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">// Module Progress</span>
+        <span class="progress-count" id="prog-count">0 / 8 completed</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="module-grid" id="module-grid"></div>
+  </div>
+  <div id="learn-path" style="display:none">
+    <div class="learn-content" style="padding-top:40px">
+      <button class="learn-back" onclick="backToHome()">← All modules</button>
+      <div class="learn-progress" id="learn-progress"></div>
+      <div id="learn-steps"></div>
+    </div>
+  </div>
+</div>
+
+<div id="section-glossary" class="section">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="s-eyebrow">Plain English</div>
+      <h2>The Ritual Glossary</h2>
+      <p>Every technical term explained without jargon. Search or browse below.</p>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="g-search" placeholder="Search terms..." oninput="filterGlossary()">
+    </div>
+    <div class="glossary-list" id="g-list"></div>
+    <div class="no-results" id="no-results">// NO TERMS FOUND</div>
+  </div>
+</div>
+
+<div id="section-quiz" class="section">
+  <div class="quiz-wrap">
+    <div class="quiz-hero">
+      <div class="s-eyebrow" style="justify-content:center">Final Exam</div>
+      <h2>The Ritual Quiz</h2>
+      <p>20 questions across all modules. Your score goes on the leaderboard.</p>
+      <div class="quiz-meta"><span>// 20 questions</span><span>// ~5 minutes</span><span>// live leaderboard</span></div>
+    </div>
+    <div id="quiz-start-screen">
+      <div class="quiz-locked-msg" id="quiz-locked-msg" style="display:none">
+        <strong>Modules Required</strong>
+        <p>Complete all 8 modules before taking the final quiz. Each module has its own quiz at the end — finish those first.</p>
+      </div>
+      <div id="quiz-ready-block">
+        <button class="btn-primary" onclick="startFinalQuiz()" style="font-size:12px;padding:13px 40px">Begin Final Exam →</button>
+      </div>
+    </div>
+    <div id="quiz-main">
+      <div class="q-prog-bar"><div class="q-prog-fill" id="q-fill" style="width:0%"></div></div>
+      <div class="q-num" id="q-num"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-options" id="q-opts"></div>
+      <div class="q-exp" id="q-exp"></div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="btn-primary" id="q-next" onclick="nextFinalQ()" style="display:none">Next →</button>
+      </div>
+    </div>
+    <div id="quiz-result">
+      <div class="result-card">
+        <div class="corners"><span></span><span></span><span></span><span></span></div>
+        <div class="result-score" id="r-score"></div>
+        <div class="result-label">Correct Answers</div>
+        <div class="result-tier" id="r-tier"></div>
+        <div class="result-msg" id="r-msg"></div>
+        <div class="result-actions">
+          <button class="btn-primary" onclick="goLB()">View Leaderboard →</button>
+          <button class="btn-ghost" onclick="retryFinalQuiz()">Retry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="section-leaderboard" class="section">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="s-eyebrow">Community Rankings</div>
+      <h2>Leaderboard</h2>
+      <p>Top scorers from the Ritual community. Complete all modules and take the quiz to appear here.</p>
+    </div>
+    <button class="btn-primary" onclick="loadLB()" style="font-size:11px">↻ Refresh</button>
+    <div class="lb-table">
+      <div class="lb-head"><div>#</div><div>Member</div><div style="text-align:right">Score</div><div style="text-align:right">Date</div></div>
+      <div id="lb-body"><div class="lb-loading">// Loading rankings...</div></div>
+    </div>
+    <div class="divider"><span class="divider-txt">End of rankings</span></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// Point to our secure serverless function instead of directly hitting JSONBin
+const CONFIG = {
+  api_url: '/api/leaderboard'
+};
+
+/* ─── DISCORD PROMPT ─── */
+let currentUser = '';
+
+function initUser(){
+  const saved = localStorage.getItem('ritual_user');
+  if(saved){
+    currentUser = saved;
+    document.getElementById('discord-overlay').classList.add('hidden');
+    document.getElementById('nav-user').style.display = 'flex';
+    document.getElementById('nav-username').textContent = saved;
+  } else {
+    document.getElementById('discord-input').addEventListener('keydown', e => { if(e.key==='Enter') saveDiscord(); });
+    setTimeout(() => document.getElementById('discord-input').focus(), 300);
+  }
+}
+
+function saveDiscord(){
+  const val = document.getElementById('discord-input').value.trim();
+  if(!val || val.length < 2){
+    document.getElementById('discord-error').style.display = 'block';
+    return;
+  }
+  currentUser = val;
+  localStorage.setItem('ritual_user', val);
+  document.getElementById('discord-overlay').classList.add('hidden');
+  document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('nav-username').textContent = val;
+}
+
+/* ─── NAV ─── */
+function showSection(name, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  if(btn && !btn.classList.contains('locked')) btn.classList.add('active');
+  if(name==='leaderboard') loadLB();
+  if(name==='learn') renderModuleGrid();
+  window.scrollTo(0,0);
+}
+
+function tryOpenQuiz(btn){
+  const completed = getCompletedModules();
+  if(completed.length < MODULES.length){
+    showSection('quiz', btn);
+    document.getElementById('quiz-locked-msg').style.display = 'block';
+    document.getElementById('quiz-ready-block').style.display = 'none';
+    document.getElementById('quiz-main').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('nav-quiz').classList.remove('active');
+  } else {
+    document.getElementById('nav-quiz').classList.remove('locked');
+    showSection('quiz', btn);
+    document.getElementById('quiz-locked-msg').style.display = 'none';
+    document.getElementById('quiz-ready-block').style.display = 'block';
+  }
+}
+
+function goLB(){ showSection('leaderboard', document.getElementById('nav-leaderboard')); }
+
+/* ─── PROGRESS TRACKING ─── */
+function getCompletedModules(){
+  try{ return JSON.parse(localStorage.getItem('ritual_completed')||'[]'); }
+  catch{ return []; }
+}
+function markModuleComplete(id){
+  const done = getCompletedModules();
+  if(!done.includes(id)){ done.push(id); localStorage.setItem('ritual_completed', JSON.stringify(done)); }
+  updateProgressBar();
+  checkQuizUnlock();
+}
+function updateProgressBar(){
+  const done = getCompletedModules().length;
+  const total = MODULES.length;
+  document.getElementById('prog-count').textContent = `${done} / ${total} completed`;
+  document.getElementById('prog-fill').style.width = ((done/total)*100)+'%';
+}
+function checkQuizUnlock(){
+  const done = getCompletedModules();
+  if(done.length >= MODULES.length){
+    document.getElementById('nav-quiz').classList.remove('locked');
+  }
+}
+
+/* ─── MODULE DATA ─── */
+const MODULES = [
+  {
+    id:'origin', num:'01', icon:'🌐', title:'The Big Picture',
+    desc:'Why Ritual exists and what problem it was built to solve.',
+    tag:'foundation', tagLabel:'Foundation',
+    steps:[
+      {
+        title:'The internet runs on trust — and that is a problem',
+        body:`<p>Every time you use the internet, you are trusting someone. When you send money, you trust a bank to move it correctly. When you store your files, you trust a cloud company to keep them safe. When you use an app, you trust the team behind it to play fair and not change the rules on you.</p>
+        <p>Most of the time this works out fine. But the problem is not that these companies are necessarily dishonest. The problem is that the entire system is built on trust, and trust is fragile. Companies get hacked. Policies change overnight. Services shut down without warning.</p>
+        <p>Blockchain was invented to address this. The core idea is simple: instead of trusting one company to keep a record, have thousands of computers all keep the same record simultaneously. No one owns it, no one can secretly change it, and anyone can check it at any time.</p>`,
+        callout:{label:'The shift',text:'From "trust us" to "verify it yourself." That is the fundamental promise of blockchain technology.'},concepts:null
+      },
+      {
+        title:'Bitcoin, Ethereum, and the limits of what came before',
+        body:`<p>Bitcoin proved the concept in 2009. You could send money to anyone in the world without a bank, and the math guaranteed it would arrive correctly. Nobody could freeze your account or reverse the transaction without your consent.</p>
+        <p>Ethereum took things further in 2015 by adding programmability. Smart contracts meant you could not just move money but run actual code on the blockchain. Developers started building financial applications, voting systems, and digital ownership tools directly on the network.</p>
+        <p>But as the ecosystem grew, a frustrating pattern emerged. Every new blockchain generation focused on making existing things faster and cheaper — more transactions per second, lower fees, faster confirmations. These are useful improvements, but none of them actually unlocked genuinely new capabilities. They just made the same old tricks run quicker.</p>`,
+        callout:{label:'The missed opportunity',text:'The whole industry spent a decade optimizing for speed when the real frontier was expressiveness. What could you actually build with this technology?'},
+        concepts:[
+          {label:'Bitcoin (2009)',title:'Trustless money',desc:'Peer to peer payments without banks. Proved that math could replace institutional trust.'},
+          {label:'Ethereum (2015)',title:'Programmable blockchain',desc:'Smart contracts let developers run code on chain. Opened the door to decentralized applications.'},
+          {label:'The problem',title:'Speed over capability',desc:'L1s and L2s competed on throughput instead of asking what fundamentally new things could be built.'}
+        ]
+      },
+      {
+        title:'What Ritual actually is',
+        body:`<p>Ritual is a blockchain built around a different question. Instead of asking how to make existing blockchains faster, the founders asked what blockchains should be able to do that they currently cannot.</p>
+        <p>The answer: AI, advanced cryptography, and complex computation should be first class citizens on the blockchain. Not bolt-on services you call out to from a smart contract. Not black boxes you have to trust. Real on-chain compute with the same verifiability and trustlessness that makes blockchain useful in the first place.</p>
+        <p>Think of it like the difference between a standard kitchen and a professional test kitchen. Every kitchen can boil water and fry an egg. A professional test kitchen has equipment for every technique imaginable — and every station is held to the same hygiene standards. Ritual is the professional test kitchen of blockchains.</p>`,
+        callout:{label:'The core premise',text:'Ritual makes smart contracts actually smart. They can reason, infer, schedule, and prove things in ways that were simply impossible before.'},
+        concepts:[
+          {label:'What it enables',title:'On chain AI',desc:'AI models run directly on the blockchain — auditable, verifiable, and owned by nobody.'},
+          {label:'What it enables',title:'Scheduled execution',desc:'Smart contracts that trigger themselves on a schedule, no external service needed.'},
+          {label:'What it enables',title:'Verifiable computation',desc:'Complex math and ZK proofs produced and verified natively on chain.'},
+          {label:'What it enables',title:'TEE execution',desc:'Private, tamper-proof computation backed by hardware security guarantees.'}
+        ]
+      }
+    ],
+    quiz:[
+      {q:'What was the core promise of Bitcoin when it launched in 2009?',opts:['Enable smart contracts on the internet','Create a faster alternative to credit cards','Allow peer-to-peer value transfer without banks or intermediaries','Build a foundation for AI computation'],ans:2,exp:"Bitcoin proved that math and cryptography could replace institutional trust for transferring money. No bank, no intermediary — just two people and a shared ledger nobody controls."},
+      {q:'What key feature did Ethereum add that Bitcoin did not have?',opts:['Programmable smart contracts that let developers run code on the blockchain','A mobile wallet application','Faster block confirmation times','Lower transaction fees for small payments'],ans:0,exp:'Ethereum introduced smart contracts in 2015. Rather than just moving value, developers could now deploy and run code directly on the blockchain — opening the door to decentralized applications.'},
+      {q:'According to Ritual\'s founders, what was the blockchain industry\'s main mistake?',opts:['Launching too many competing blockchains','Ignoring enterprise customers','Optimizing for speed instead of expanding what blockchains can actually do','Failing to hire enough developers'],ans:2,exp:"Every blockchain generation raced to improve throughput — more transactions per second, lower fees. Ritual was founded on the observation that this missed the more important question: what new things could blockchains actually enable?"},
+      {q:'What does "trustless" mean in a blockchain context?',opts:['Users remain completely anonymous','Transactions are free to send','No login or account is required','Guarantees come from code and cryptography rather than trusting any company'],ans:3,exp:'Trustless means the system enforces its rules through math and publicly verifiable code. You do not need to trust the company that built it — anyone can check the rules themselves.'},
+      {q:'Which analogy does Ritual use to describe its approach?',opts:['A racing car versus a family sedan — same roads, higher performance','A professional test kitchen versus a standard kitchen — same standards, every type of work supported','A supercomputer versus a laptop — same software, more processing power','A library versus a bookshop — same books, different access model'],ans:1,exp:"Ritual's point is that its advanced compute types — AI, ZK, TEE — share the same trustless guarantees as standard blockchain operations, just as every station in a professional kitchen follows the same food safety standards regardless of how complex the dish."}
+    ]
+  },
+  {
+    id:'architecture', num:'02', icon:'⚙️', title:'Core Architecture',
+    desc:'EOVMT, Symphony, and why Ritual\'s design makes everything else possible.',
+    tag:'architecture', tagLabel:'Architecture',
+    steps:[
+      {
+        title:'The fundamental problem with how blockchains execute code',
+        body:`<p>To understand what makes Ritual different, you need to understand replicated execution. In virtually every blockchain that exists today, when a transaction runs, every single node in the network runs that same computation independently. All of them. At the same time.</p>
+        <p>For simple things like transferring a token, this is fine. The computation takes microseconds and costs almost nothing to repeat thousands of times. But imagine asking every node in a network of thousands to each run a large AI model inference independently. The math simply does not work. It would be absurdly expensive and impossibly slow.</p>
+        <p>This is the wall that every blockchain hits when you try to bring real computation to it. The architecture was not designed for workloads where different tasks require fundamentally different hardware and very different amounts of time and resources.</p>`,
+        callout:{label:'Replicated execution',text:'Every node re-runs every computation. Works fine for simple transfers. Breaks completely for AI inference, ZK proofs, or anything computationally intensive.'},concepts:null
+      },
+      {
+        title:'Execute Once, Verify Many Times',
+        body:`<p>Ritual\'s answer to this problem is EOVMT — Execute Once, Verify Many Times. Instead of having every node run every computation, one specialized node runs it, and then the rest of the network verifies that it was done correctly.</p>
+        <p>Verification is much cheaper than execution. A node does not need a powerful GPU to check that an inference was run correctly — it just needs to verify a cryptographic proof. So you get the benefits of having one specialized node do the heavy lifting, while the whole network still provides the security guarantee that the result was legitimate.</p>
+        <p>This single architectural choice is what makes everything else Ritual does possible. Without it, on-chain AI and complex computation would remain theoretical ideas.</p>`,
+        callout:{label:'EOVMT in plain English',text:'One capable computer does the hard work. Everyone else checks the receipt. Much cheaper, just as secure.'},
+        concepts:[
+          {label:'Step 1',title:'Specialized node executes',desc:'A node with the right hardware runs the computation once.'},
+          {label:'Step 2',title:'Proof is generated',desc:'The executing node produces a cryptographic proof of correct execution.'},
+          {label:'Step 3',title:'Network verifies',desc:'The rest of the network verifies the proof, not the computation itself.'},
+          {label:'Result',title:'Full security, fraction of the cost',desc:'Trustless guarantees without every node needing specialized hardware.'}
+        ]
+      },
+      {
+        title:'Symphony: The consensus protocol behind it all',
+        body:`<p>Symphony is the consensus protocol Ritual built to make EOVMT work at scale. Consensus is the process by which a blockchain's nodes agree on what happened and in what order. Traditional consensus assumes all nodes do the same work — Symphony was redesigned for a world where different nodes do very different things.</p>
+        <p>It builds on Gasper, the consensus mechanism behind Ethereum, but adds several important innovations. Proof sharding lets large cryptographic proofs get split into smaller pieces so different groups of validators can check them in parallel. Distributed verification means the work is divided up intelligently across the network. Attested committees provide security guarantees even when different subsets of validators are checking different proofs.</p>`,
+        callout:{label:'Symphony',text:'A consensus protocol rebuilt for heterogeneous work. Handles AI, ZK, TEE, and standard transactions all at once without bottlenecks.'},
+        concepts:[
+          {label:'Innovation',title:'Proof sharding',desc:'Large proofs are split into smaller pieces verified in parallel by different validator groups.'},
+          {label:'Innovation',title:'Distributed verification',desc:'Verification work is divided intelligently rather than replicated everywhere.'},
+          {label:'Innovation',title:'Attested committees',desc:'Groups of validators attest to specific computation types with targeted security guarantees.'},
+          {label:'Foundation',title:"Built on Gasper",desc:"Symphony extends Ethereum's consensus model, making it familiar to developers."}
+        ]
+      }
+    ],
+    quiz:[
+      {q:'In replicated execution, what does every validator do when a transaction runs?',opts:['Checks only its own local copy of the result','Runs the computation independently and compares results with other nodes','Delegates execution to the fastest node available','Waits for a designated leader node to execute first'],ans:1,exp:'In replicated execution every node re-runs every computation independently. For simple transfers this is cheap. For AI inference it would mean thousands of nodes each running a full model — practically impossible.'},
+      {q:'What does EOVMT stand for?',opts:['Extended On-chain Virtual Machine Technology','Encrypted Output Verification Method','Every Operation Validates Multiple Transactions','Execute Once, Verify Many Times'],ans:3,exp:'Execute Once, Verify Many Times is Ritual core architectural primitive. One specialized node runs the expensive computation; the rest of the network verifies a cryptographic proof of correct execution rather than repeating the work.'},
+      {q:'Why can a standard node verify an AI inference without a GPU?',opts:['Standard nodes are secretly more powerful than they appear','Verifying a cryptographic proof requires far fewer resources than running the original computation','The verification happens on a separate sidechain','Standard nodes pool their resources temporarily during verification'],ans:1,exp:'A cryptographic proof is a compact mathematical certificate. Checking it is cheap compared to producing it. Any node can confirm an AI inference was done correctly by verifying the proof — no specialized hardware needed.'},
+      {q:'What existing consensus mechanism does Symphony extend?',opts:['Proof of Work from Bitcoin','Tendermint from Cosmos','Gasper, the consensus mechanism behind Ethereum','Avalanche consensus'],ans:2,exp:"Symphony builds on Gasper, Ethereum's consensus mechanism. Rather than replacing it entirely, Ritual extended it with proof sharding, attested committees, and distributed verification to handle heterogeneous compute."},
+      {q:'What does proof sharding do in Symphony?',opts:['Divides the blockchain state across multiple databases','Breaks large cryptographic proofs into sub-proofs verified in parallel by different validator groups','Randomly assigns validation duties to prevent collusion','Reduces the size of individual transactions'],ans:1,exp:'Proof sharding splits a large proof into smaller pieces. Different validator subsets check different pieces simultaneously rather than every validator checking the whole thing. The result is dramatically higher verification throughput.'}
+    ]
+  },
+  {
+    id:'resonance', num:'03', icon:'📡', title:'Resonance',
+    desc:'The compute marketplace that prices and routes work to the right nodes.',
+    tag:'architecture', tagLabel:'Architecture',
+    steps:[
+      {
+        title:'Why uniform gas pricing breaks down for complex compute',
+        body:`<p>Gas is the fee you pay to run computation on a blockchain. On Ethereum and most other chains, gas is priced uniformly — every operation has a fixed gas cost regardless of what hardware it actually needs to run.</p>
+        <p>This made sense when all operations were simple arithmetic. But it breaks down the moment you introduce heterogeneous compute. Running an AI inference on a GPU costs fundamentally different resources than checking a signature or transferring a token. Treating them the same is like charging the same delivery fee for a letter and a grand piano just because they are both packages.</p>
+        <p>The result on a naive system would be chaos — cheap operations priced too high, expensive ones subsidized unpredictably, and specialized hardware providers with no reliable way to price their services.</p>`,
+        callout:{label:'The pricing problem',text:'One-size-fits-all gas pricing assumes all computation is equivalent. It is not. Ritual needs a marketplace, not a fixed menu.'},concepts:null
+      },
+      {
+        title:'How Resonance actually works',
+        body:`<p>Resonance is Ritual's real-time compute marketplace that prices each type of work based on actual supply and demand. When an application needs a computation performed, it enters a marketplace where its request gets matched to a node capable of handling it, at a price determined by current network conditions.</p>
+        <p>The key players are brokers and auctioneers. Brokers represent applications and users who need work done — they submit requests specifying what computation they need. Auctioneers are the routing layer, matching broker requests to available nodes at the most efficient price. Nodes then compete to service requests based on their capabilities and the fees offered.</p>
+        <p>This means GPU node operators get fairly compensated for expensive AI work, ZK provers get paid appropriately for cryptographic computation, and standard EVM execution continues at normal prices. Everything finds its right level naturally.</p>`,
+        callout:{label:'Resonance',text:'A live marketplace where each type of compute finds its true price based on what it actually costs to run — determined by supply and demand, not fixed estimates.'},
+        concepts:[
+          {label:'Participant',title:'Brokers',desc:'Represent applications and users needing compute. Submit requests with requirements and bids.'},
+          {label:'Participant',title:'Auctioneers',desc:'Route requests to appropriate nodes. Handle matching and price discovery.'},
+          {label:'Participant',title:'Nodes',desc:'Specialized hardware providers competing to service requests based on their capabilities.'},
+          {label:'Outcome',title:'Dynamic pricing',desc:'Every computation type finds a fair market price. No cross-subsidization, no guesswork.'}
+        ]
+      }
+    ],
+    quiz:[
+      {q:'Why does uniform gas pricing fail for a network that runs AI inference?',opts:['Gas prices are set too high for most users','AI inference and a token transfer require completely different hardware resources — treating them identically creates unfair pricing for everyone','Validators prefer a single fixed rate for simplicity','AI inference is banned on networks with uniform pricing'],ans:1,exp:'A token transfer and a GPU-intensive AI inference cost vastly different amounts to run. Uniform pricing inevitably either overcharges simple operations or undercharges expensive ones — neither is sustainable.'},
+      {q:'Which participants submit compute requests in Resonance?',opts:['Auctioneers','Validators','Node operators','Brokers'],ans:3,exp:'Brokers are the demand side of Resonance. They represent applications and users who need work done, submitting requests that specify what computation is needed and what they are willing to pay.'},
+      {q:'What role do auctioneers play in Resonance?',opts:['They run the actual computations on behalf of users','They validate blocks in Symphony consensus','They match broker requests with appropriate specialized nodes and handle price discovery','They store the results of completed computations'],ans:2,exp:'Auctioneers sit between brokers and nodes. They take incoming compute requests and route them to the most suitable available nodes, facilitating price discovery so every job finds a fair market rate.'},
+      {q:'What is Resonance?',opts:['A consensus mechanism for finalizing blocks','A privacy layer encrypting compute results','A token distribution mechanism rewarding validators','Ritual dynamic compute marketplace that prices each workload type through supply and demand'],ans:3,exp:"Resonance is Ritual's compute marketplace. Rather than fixed gas fees, each type of computation — AI inference, ZK proving, standard EVM — finds its own price based on supply and demand, matching work to the right nodes at fair rates."},
+      {q:'Under Resonance, why does a GPU node running AI inference earn more than a standard node?',opts:['GPU nodes have more voting power in governance','AI inference is charged a penalty fee that flows to nodes','Dynamic pricing compensates nodes based on actual hardware costs — expensive specialized work pays more','GPU nodes process more transactions per second'],ans:2,exp:'Resonance prices work by what it actually costs to run. A GPU running AI inference has much higher hardware costs than a standard node doing a balance check. Dynamic pricing reflects that reality — specialized hardware earns specialized rates.'}
+    ]
+  },
+  {
+    id:'infernet', num:'04', icon:'🔗', title:'Infernet',
+    desc:'The oracle network bridging smart contracts with off-chain AI and compute.',
+    tag:'architecture', tagLabel:'Architecture',
+    steps:[
+      {
+        title:'The gap between blockchains and the real world',
+        body:`<p>Blockchains are self-contained systems. By design, a smart contract can only read data that exists on the blockchain. It cannot directly call an external API, pull from a database, or invoke an AI model running on an external server. This isolation is part of what makes blockchains trustworthy — but it is also a significant limitation.</p>
+        <p>Oracles exist to bridge this gap. An oracle is a system that brings external data onto the blockchain so smart contracts can use it. Price feeds are the classic example — a DeFi protocol needs the current price of ETH, so an oracle fetches it and writes it on chain. The smart contract then reads it like any other on-chain value.</p>
+        <p>Infernet is Ritual's compute oracle. Instead of just bringing data on chain, it brings the results of computation on chain — and it brings them with cryptographic proof that the computation was performed correctly.</p>`,
+        callout:{label:'What Infernet does',text:'It is the bridge between what smart contracts can access on chain and the full range of computation that exists in the real world.'},concepts:null
+      },
+      {
+        title:'How Infernet settles results on chain',
+        body:`<p>The key word here is verified. Anyone can claim an AI model returned a certain output. What makes Infernet useful is that the results it brings on chain come with a proof — you can check that the computation was genuinely performed by the model it claims to have used, without re-running it yourself.</p>
+        <p>When an Infernet node runs a computation, it generates a cryptographic proof alongside the result. Both get submitted on chain. Validators check the proof to confirm the result is legitimate without needing to repeat the full computation.</p>
+        <p>The combination of Infernet and Ritual Chain means the full stack is covered. Infernet handles off-chain compute jobs and settles them on chain. Ritual Chain handles on-chain compute natively through its precompiles. Together they give developers a complete environment where any kind of computation can be incorporated into a smart contract.</p>`,
+        callout:{label:'Verified off-chain compute',text:'Infernet does not just bring results on chain. It brings proven results — backed by cryptographic guarantees that the work was done correctly.'},
+        concepts:[
+          {label:'Step 1',title:'Smart contract requests work',desc:'A contract calls Infernet with a compute request — an AI query, a ZK job, any off-chain task.'},
+          {label:'Step 2',title:'Node executes off chain',desc:'An Infernet node runs the computation using the appropriate hardware.'},
+          {label:'Step 3',title:'Proof generated',desc:'The node creates a cryptographic proof alongside the result.'},
+          {label:'Step 4',title:'Settled on chain',desc:'Result and proof are submitted on chain. Validators verify. Contract gets its answer.'}
+        ]
+      }
+    ],
+    quiz:[
+      {q:'Why cannot a smart contract directly call an AI model hosted on an external server?',opts:['External servers charge licensing fees blockchains cannot pay','Blockchains are isolated by design — contracts can only interact with data that already exists on chain','AI models are too large to fit in a transaction','Regulators prohibit direct AI access from blockchains'],ans:1,exp:'Smart contracts can only read from the blockchain they live on. External APIs, databases, and AI models running on other servers are invisible to them by design — this isolation is part of what makes blockchains trustworthy.'},
+      {q:'What makes Infernet different from a standard API call?',opts:['Infernet responses arrive faster than APIs','Infernet is cheaper than commercial API providers','Infernet is maintained by a government body ensuring accuracy','Infernet results come with cryptographic proofs that validators check on chain — you do not have to trust the result'],ans:3,exp:'A standard API gives you an answer and asks you to trust it. Infernet generates a cryptographic proof alongside every result. Validators verify that proof on chain, confirming the computation genuinely happened as claimed.'},
+      {q:'What is Infernet?',opts:["Ritual's token distribution mechanism","Ritual's off-chain compute oracle bridging smart contracts with external computation and settling verified results on chain","A layer-2 scaling solution for Ritual Chain","A node communication protocol for validator coordination"],ans:1,exp:"Infernet is Ritual's compute oracle. Smart contracts request off-chain computations through it. Infernet nodes execute those computations and settle cryptographically verified results back on chain."},
+      {q:'After an Infernet node executes a computation, what does it produce alongside the result?',opts:['A fee invoice for the requesting contract','A cryptographic proof certifying the computation was performed correctly','A human-readable summary of what happened','A hash of the model weights used'],ans:1,exp:'The node creates a cryptographic proof of correct execution alongside the result. Both are submitted on chain. Validators verify the proof rather than re-running the computation — confirming authenticity efficiently.'},
+      {q:'How do Infernet and Ritual Chain relate to each other?',opts:['Infernet is being replaced by Ritual Chain in a future upgrade','They serve the same function under different names','Ritual Chain handles native on-chain compute; Infernet handles off-chain compute and settles results on chain — together they cover the full stack','Infernet is a competing product built by a different team'],ans:2,exp:'They are complementary. Ritual Chain executes computation natively through precompiles. Infernet handles off-chain computation and settles verified results on chain. Together they ensure no computation type is out of reach for a smart contract.'}
+    ]
+  },
+  {
+    id:'guardians', num:'05', icon:'🛡', title:'Guardians',
+    desc:'How individual nodes choose what they will and will not compute.',
+    tag:'architecture', tagLabel:'Architecture',
+    steps:[
+      {
+        title:'The tension between openness and responsibility',
+        body:`<p>One of the ideals of public blockchain networks is permissionlessness — anyone should be able to use the network without needing approval. But heterogeneous compute introduces a real tension. What happens when a node is asked to run an AI inference on a request it finds objectionable? What if a node operator runs specialized hardware only suited for certain types of work?</p>
+        <p>Traditional blockchains sidestep this question because they run the same simple operations for everyone. Ritual cannot do this. When the network supports AI inference on arbitrary inputs, there are real questions about what different nodes are willing or able to process.</p>
+        <p>The naive solution — requiring all nodes to service all requests — would be both unworkable in practice and potentially coercive. The opposite extreme — letting nodes opt out arbitrarily — would undermine reliability. Guardians is the thoughtful middle ground.</p>`,
+        callout:{label:'The challenge',text:'A network supporting arbitrary AI compute needs a principled way to let nodes set limits without compromising the network\'s overall security or censorship resistance.'},concepts:null
+      },
+      {
+        title:'How Guardians work',
+        body:`<p>Guardians give each Ritual node a configurable firewall. Rather than accepting or rejecting work wholesale, a node can specify precisely which categories of computation it is willing to service — based on the type of model, the topic category of the prompt, the type of compute required, or any other criteria the operator chooses.</p>
+        <p>The crucial design decision is that opting out of certain compute jobs does not mean leaving the network. A Guardian node can decline to run a specific inference while still participating in consensus — validating blocks, earning rewards for other work, contributing to security. The node is not punished for having preferences. It simply does not service requests outside its configured scope.</p>
+        <p>This preserves censorship resistance at the network level while giving individual operators meaningful control. Even if many nodes decline a particular type of work, other willing nodes will step in. The network stays open even when individual nodes are selective.</p>`,
+        callout:{label:'Guardians',text:'Per-node filtering that lets operators choose what they compute without abandoning the network. Individual selectivity, collective openness.'},
+        concepts:[
+          {label:'What nodes can filter',title:'Request categories',desc:'Nodes opt into specific computation types — AI inference, ZK proofs, TEE jobs — and decline others.'},
+          {label:'What nodes can filter',title:'Prompt topics',desc:'For AI specifically, nodes can specify what subject categories they will and will not process.'},
+          {label:'Key design',title:'Filter without exiting',desc:'Declining compute requests does not affect consensus participation. Nodes keep earning for what they do.'},
+          {label:'Network effect',title:'Censorship resistance preserved',desc:'If some nodes decline a request, others step in. The network stays permissionless overall.'}
+        ]
+      }
+    ],
+    quiz:[
+      {q:'What specific tension do Guardians resolve?',opts:['The conflict between high fees and low throughput','The gap between on-chain and off-chain compute speeds','The trade-off between individual node responsibility and network-level openness','The competition between proof-of-work and proof-of-stake validators'],ans:2,exp:"Guardians address a real tension: nodes need the ability to set limits on what they compute, but the network must stay open overall. Guardians solve this by making filtering a node-level setting rather than a network-level policy."},
+      {q:'A Guardian node declines to run an AI inference request. What happens to its block validation duties?',opts:['It is temporarily suspended from consensus until it accepts the request','It forfeits rewards for the current epoch','It continues participating in consensus normally — filtering compute is separate from consensus','It must get approval from other validators before declining'],ans:2,exp:"This separation is Guardians' key insight. Opting out of a specific compute job has no effect on consensus participation. The node keeps validating blocks, earning rewards, and contributing to network security."},
+      {q:'What happens to a request that several Guardian nodes decline to service?',opts:['The request is permanently rejected from the network','It is automatically refunded to the user','Other nodes willing to service it step in — the network overall stays permissionless','A special committee of validators handles declined requests'],ans:3,exp:'Individual selectivity does not equal collective censorship. If some nodes decline a request, others with different configurations will accept it. The network as a whole remains permissionless even when individual nodes are selective.'},
+      {q:'Which of these is NOT a valid filtering criterion for a Guardian node?',opts:['The type of computation requested (AI, ZK, TEE)','The topic category of AI prompts','The specific model being invoked','The geographic location of the requesting wallet'],ans:3,exp:"Guardians let nodes filter by compute type, prompt topic, specific models, and other technical criteria. Geographic filtering of wallet addresses is not a supported criterion — that would introduce off-chain identity assumptions the system is not designed around."},
+      {q:'Why would requiring all nodes to service all requests create problems on Ritual?',opts:['It would generate too much revenue for node operators','Nodes are built for specific hardware tasks — forcing a ZK prover to run AI inference is inefficient, and forcing any node to process content it objects to raises real ethical concerns','There are currently not enough nodes to handle all requests','Uniform service requirements would make pricing impossible'],ans:1,exp:"Ritual nodes specialize. A GPU node is optimized for AI inference, not ZK proofs, and vice versa. Beyond hardware fit, compelling operators to process any arbitrary content regardless of their preferences creates legitimate ethical issues Guardians are designed to avoid."}
+    ]
+  },
+  {
+    id:'ai', num:'06', icon:'🤖', title:'AI on Ritual',
+    desc:'Enshrined models, verifiable inference, and the on-chain model marketplace.',
+    tag:'architecture', tagLabel:'Architecture',
+    steps:[
+      {
+        title:'Why AI needs to be on chain',
+        body:`<p>Today\'s AI is powerful but deeply centralized. The models shaping the world — making decisions about content, credit, hiring, and access — are controlled by a small number of companies. They can be updated silently, biased intentionally or accidentally, and shut down without warning. There is no way to verify that the model running today is the same one that was running yesterday.</p>
+        <p>This becomes a serious problem as AI gets incorporated into higher-stakes decisions. If a financial protocol uses an AI model to make pricing decisions, anyone interacting with that protocol deserves to know which model is running and to verify it has not been tampered with. If AI is making decisions that affect your life, you should at minimum be able to see what you are dealing with.</p>
+        <p>Putting AI on chain does not magically solve bias or make every model good. But it creates a foundation for accountability that does not currently exist anywhere else.</p>`,
+        callout:{label:'The accountability gap',text:'The most powerful AI systems in the world operate as black boxes. On-chain AI is not a perfect solution, but it is the first step toward AI infrastructure that can actually be audited.'},concepts:null
+      },
+      {
+        title:'Enshrined AI models and the Model Marketplace',
+        body:`<p>Ritual introduces enshrined AI models — models registered on the blockchain as first class citizens, not just referenced by URL or hash. An enshrined model has an on-chain identity, version history, and provenance record. Smart contracts can invoke it directly, and anyone can verify exactly which version was used and what it produced.</p>
+        <p>The Model Marketplace is built on top of this. Developers and researchers can publish models with full provenance metadata. Others can use these models and pay the creator for each inference. Royalty distribution is handled automatically by smart contracts — no middlemen, no disputes.</p>
+        <p>There is also support for community-owned fine-tuned variants. A base model can be adapted by different people, with each variant inheriting provenance from the base and having its own royalty structure. The whole model ecosystem can be tracked on chain as an evolving tree of related models.</p>`,
+        callout:{label:'Enshrined models',text:'AI as a first class on-chain citizen. Verifiable identity, traceable history, and automatically enforced payment to creators.'},
+        concepts:[
+          {label:'Feature',title:'On chain identity',desc:'Each model has a blockchain identity — you always know exactly what model ran.'},
+          {label:'Feature',title:'Verifiable inference',desc:'Cryptographic proofs confirm outputs genuinely came from the claimed model.'},
+          {label:'Feature',title:'Automatic royalties',desc:'Creators get paid per inference through smart contracts. No platform taking a large cut.'},
+          {label:'Feature',title:'Community fine-tunes',desc:'Base models can be adapted by anyone. Variants inherit provenance and share revenue upstream.'}
+        ]
+      },
+      {
+        title:'Verifiable inference with vTune and SVE',
+        body:`<p>Claiming a model ran correctly is one thing. Proving it is another. Ritual is developing two research primitives — vTune and SVE — to make AI inference verifiable in practice.</p>
+        <p>vTune focuses on model provenance. It provides a cryptographic pathway to verify that a given model is the authentic version claimed — even when the full model weights are not publicly available. This is important for protecting intellectual property while still enabling verification.</p>
+        <p>SVE takes a probabilistic approach. Rather than requiring a full mathematical proof for every inference — too expensive for large models — it uses statistical methods to verify that inference was performed faithfully with high confidence at a fraction of the cost of full proofs.</p>`,
+        callout:{label:'The goal',text:'Every AI inference on Ritual should eventually be verifiable. Not just a promise that the model ran correctly — cryptographic proof that it did.'},concepts:null
+      }
+    ],
+    quiz:[
+      {q:'What is the core accountability problem with centralized AI systems today?',opts:['They require too much electricity to run','They are controlled by few companies, can change silently, and outputs cannot be independently verified by anyone outside the company','They are too slow for real-time applications','They can only process text, not images or audio'],ans:1,exp:"The most powerful AI models are black boxes. They can be updated without notice, carry hidden biases, and no outside party can verify what they actually do. Ritual's on-chain AI creates a foundation for accountability that doesn't currently exist."},
+      {q:'What does it mean for an AI model to be "enshrined" on Ritual?',opts:['The model has been approved by a Ritual governance vote','The model is locked permanently and can never be updated','The model is registered as a first-class on-chain citizen with a cryptographic identity, version history, and verifiable provenance','The model is stored off-chain but referenced by a hash'],ans:2,exp:'Enshrined models have on-chain identities and full provenance records on the Ritual blockchain. Smart contracts can invoke them directly, and anyone can verify exactly which version ran and confirm the outputs were not tampered with.'},
+      {q:'How are royalties distributed when someone uses a model on the Model Marketplace?',opts:['Creators submit a manual claim each month','The Ritual Foundation distributes earnings quarterly to registered creators','Smart contracts automatically pay creators per inference with no intermediary required','Users negotiate payment directly with model creators before each use'],ans:2,exp:"Smart contracts handle royalty distribution automatically on every inference. No platform taking a disproportionate cut, no payment delays, no disputes — trustless compensation at the protocol level."},
+      {q:'What is vTune designed to verify?',opts:['How quickly a model can process a request','That model outputs are unbiased and factually accurate','That a given model is the authentic version it claims to be, even when full weights are not public','That the hardware running a model is functioning correctly'],ans:2,exp:'vTune focuses on provenance — confirming a model is genuinely the version it claims to be. This is important for protecting IP while still enabling independent verification, particularly when operators keep model weights private.'},
+      {q:'Full mathematical proofs for large AI inference are currently impractical. What does SVE do instead?',opts:['SVE skips verification entirely for models below a certain size','SVE requires human reviewers to spot-check a percentage of outputs','SVE uses statistical methods to achieve high-confidence verification at a fraction of the cost of full proofs','SVE outsources verification to a trusted third-party auditor'],ans:2,exp:"A complete mathematical proof for every large model inference would cost more than the inference itself. SVE uses statistical verification to confirm with very high confidence that inference was performed faithfully — practical cost, strong guarantees."}
+    ]
+  },
+  {
+    id:'cryptoai', num:'07', icon:'🔒', title:'ZK, TEE and Scheduling',
+    desc:'The advanced compute primitives that make Ritual more than just an AI chain.',
+    tag:'architecture', tagLabel:'Architecture',
+    steps:[
+      {
+        title:'Zero Knowledge Proofs on Ritual',
+        body:`<p>Zero knowledge proofs are one of the most powerful ideas in modern cryptography. They let you prove that something is true without revealing any information about why it is true. You can prove you know a password without ever revealing the password. You can prove a transaction is valid without revealing the amounts involved. You can prove a computation ran correctly without revealing the inputs.</p>
+        <p>ZK proofs have enormous applications in blockchain — private transactions, identity verification, scalable rollups — but generating them is computationally expensive. On traditional blockchains there is no good answer for this. On Ritual, ZK proof generation is a supported compute type. Nodes with the right CPU resources can specialize in ZK work and get compensated accordingly.</p>
+        <p>This means applications needing ZK proofs can commission them directly through the Ritual compute marketplace without building their own prover infrastructure.</p>`,
+        callout:{label:'ZK on Ritual',text:'Proof generation is natively supported compute. Build privacy-preserving applications without running your own prover network.'},concepts:null
+      },
+      {
+        title:'Trusted Execution Environments',
+        body:`<p>A Trusted Execution Environment is a secure, isolated section of a processor. Code running inside a TEE is protected by hardware — not just software — guarantees. Even the operator of the machine cannot see or modify what is happening inside a TEE while it is running. Results come with hardware attestations confirming the code ran as expected in a genuine secure environment.</p>
+        <p>TEEs are particularly useful when you need computational privacy alongside verifiability. A healthcare application might need to run AI inference on sensitive patient data without exposing that data to the node running the computation. A financial model might process proprietary inputs that should never leave the secure environment.</p>
+        <p>Ritual supports TEE execution as a first class compute type. Nodes can be equipped and attested for TEE work, and developers can specify that a computation must run in a TEE to get hardware-backed security guarantees.</p>`,
+        callout:{label:'TEE',text:'Hardware guaranteed privacy. Your computation runs in a locked room that even the machine owner cannot see inside.'},
+        concepts:[
+          {label:'Guarantee',title:'Hardware isolation',desc:'The computation is protected by the processor itself, not just software firewalls.'},
+          {label:'Guarantee',title:'Attestation',desc:'TEE nodes produce hardware attestations proving the secure environment was genuine.'},
+          {label:'Use case',title:'Private AI inference',desc:'Run AI on sensitive data without exposing inputs to node operators.'},
+          {label:'Use case',title:'Confidential computation',desc:'Contract logic and state that remain private even on a public blockchain.'}
+        ]
+      },
+      {
+        title:'Scheduled Transactions and EVM++',
+        body:`<p>Scheduled Transactions solve a problem that sounds simple but has frustrated developers for years: how do you make a smart contract do something at a specific future time without someone manually triggering it?</p>
+        <p>The standard answer has been keeper services — external bots that watch for conditions and send transactions when they are met. This adds an external dependency. If the keeper goes down or gets delayed, your scheduled action does not fire. Ritual bakes scheduling into the protocol itself. Contracts register invocations that execute at the top of the relevant block as part of normal block production.</p>
+        <p>EVM++ is Ritual's enhanced execution environment. It maintains full compatibility with Ethereum smart contracts while adding support for heterogeneous compute precompiles. You can call AI inference, ZK provers, and TEE execution directly from standard Solidity code. Ritual also includes day-zero support for several in-demand Ethereum improvements, meaning apps on Ritual benefit from features that other chains adopt months or years later.</p>`,
+        callout:{label:'EVM++',text:'Everything Ethereum developers know, plus native calls to AI, ZK proofs, and TEE jobs. Same language, massively expanded capabilities.'},
+        concepts:[
+          {label:'Feature',title:'Scheduled Transactions',desc:'Contracts register future invocations that fire automatically at the right block. No keepers needed.'},
+          {label:'Feature',title:'Heterogeneous precompiles',desc:'Call AI inference, ZK proofs, and TEE execution directly from Solidity.'},
+          {label:'Feature',title:'EIP extensions',desc:'Day-zero support for highly requested Ethereum improvements.'},
+          {label:'Feature',title:'EVM compatibility',desc:'All existing Ethereum smart contracts and tooling work without modification.'}
+        ]
+      }
+    ],
+    quiz:[
+      {q:'A zero knowledge proof lets you prove something is true. What is the key property?',opts:['The proof reveals all supporting data so anyone can double-check it','The proof is faster to generate than a standard signature','No information about why the statement is true is revealed — only that it is','The proof requires a trusted third party to countersign it'],ans:2,exp:'Zero knowledge proofs are a cryptographic technique where you prove a claim is true without disclosing any information about the underlying data. You can prove you know a password without revealing it, or that a transaction is valid without showing the amounts.'},
+      {q:'What is a Trusted Execution Environment?',opts:['A dedicated server room with physical security controls','A type of smart contract that locks funds until conditions are met','A regulated environment where AI models must be approved before running','A hardware-isolated processor region where code runs with privacy guarantees the machine owner cannot override'],ans:3,exp:'A TEE is built into the processor chip itself. Code inside it cannot be observed or modified — not even by the person who owns the machine. Results come with hardware attestations proving the secure environment was genuine.'},
+      {q:'Which of these is a realistic use case for TEE execution on Ritual?',opts:['Making all transactions on the network anonymous by default','Speeding up ZK proof generation significantly','Running AI inference on sensitive medical data without exposing it to the node operator','Replacing Symphony as the consensus mechanism for private transactions'],ans:2,exp:'TEEs create isolated execution where inputs remain private. A healthcare application can run AI inference on patient data without the node operator ever seeing those inputs — the TEE hardware guarantees it.'},
+      {q:'What did developers have to use before Scheduled Transactions existed, and what was the risk?',opts:['Manual multi-sig approvals that required online coordinators','External keeper bot services that could go offline, preventing the scheduled action from firing','Separate layer-2 blockchains dedicated to time-based logic','Governance proposals that had a 48-hour delay built in'],ans:1,exp:"Keeper bots were the standard answer for time-based smart contract actions. If the keeper went down or got delayed, the action simply did not fire. Ritual makes scheduling native to the protocol — registered invocations execute automatically at the right block."},
+      {q:'An Ethereum developer wants to use their existing Solidity contracts on Ritual and also call an AI model. What does EVM++ mean for them?',opts:['They must rewrite their contracts in a new Ritual-specific language','They can run their existing contracts unchanged and call AI precompiles as native operations from the same code','They need to deploy a separate contract on a sidechain to access AI features','EVM++ only works with new contracts written specifically for Ritual'],ans:1,exp:"EVM++ maintains full Ethereum compatibility — existing Solidity contracts run without modification. The ++ part adds heterogeneous compute precompiles, so the same contract can transfer tokens and invoke an AI inference in the same transaction."}
+    ]
+  },
+  {
+    id:'ecosystem', num:'08', icon:'🌍', title:'Ritual in the Ecosystem',
+    desc:'How Ritual fits into web3 broadly and where the project is headed.',
+    tag:'ecosystem', tagLabel:'Ecosystem',
+    steps:[
+      {
+        title:'Ritual is not just for Crypto x AI apps',
+        body:`<p>When people first hear about Ritual they often slot it mentally as "the blockchain for AI applications." That is accurate but incomplete. The underlying architecture — heterogeneous compute, specialized nodes, dynamic pricing, verifiable execution — has implications far beyond AI.</p>
+        <p>Prover networks are a good example. Modern high-performance blockchains increasingly need dedicated networks of machines to generate ZK proofs. Today these are separate infrastructure pieces teams build and maintain independently. With Ritual, a rollup can source its proving compute from the network as needed, paying market rates through Resonance rather than maintaining dedicated hardware.</p>
+        <p>Rollup-as-a-Service providers face similar challenges. When they want to add custom precompiles or advanced features to rollups they operate, they currently have to build specialized infrastructure from scratch. Ritual's compute marketplace gives them a ready-made layer to pull those capabilities from.</p>`,
+        callout:{label:'Beyond AI',text:'Any computation that is expensive, specialized, or needs to be verifiable can be sourced from Ritual. The network is designed to be compute-agnostic.'},
+        concepts:[
+          {label:'Use case',title:'Prover networks',desc:'High performance chains needing ZK proof generation can use Ritual nodes as their proving infrastructure.'},
+          {label:'Use case',title:'Rollup-as-a-Service',desc:'RaaS providers can add custom compute capabilities through Ritual rather than building new infrastructure.'},
+          {label:'Use case',title:'AI-native DeFi',desc:'Protocols using AI for pricing and risk assessment with fully verifiable model logic on chain.'},
+          {label:'Use case',title:'Autonomous agents',desc:'On-chain agents that reason, schedule tasks, and coordinate without human triggers.'}
+        ]
+      },
+      {
+        title:'The Schelling Point vision',
+        body:`<p>A Schelling point is a solution that people naturally converge on when they need to coordinate without communicating. It is the obvious meeting place — the clock at Grand Central, the most prominent landmark. Ritual\'s long-term ambition is to become the Schelling point for all of web3\'s advanced compute needs.</p>
+        <p>In practice, this means: when a developer building on any chain needs to incorporate AI inference, ZK proving, TEE execution, or any complex heterogeneous computation, Ritual should be the obvious first place they look. Not because anyone mandated it, but because the infrastructure is there, the pricing is fair, the verification is solid, and the ecosystem is already built around it.</p>
+        <p>This would mean Ritual occupying a foundational layer that multiple chains and applications depend on — similar to how certain cloud providers became default infrastructure for much of the internet. The difference is that Ritual is trustless by design and owned by no single company.</p>`,
+        callout:{label:'The long game',text:'Ritual is building to become the default compute layer for web3. The place every chain goes when they need something the EVM cannot do on its own.'},concepts:null
+      }
+    ],
+    quiz:[
+      {q:'Which of these describes a use case for Ritual outside of AI applications?',opts:['Hosting decentralized social media content','Storing NFT images permanently on chain','Providing ZK proof generation infrastructure for rollups and high-performance chains','Managing DNS records for blockchain domains'],ans:2,exp:"Ritual's heterogeneous compute architecture supports any specialized workload. Chains needing ZK prover infrastructure can source it from Ritual nodes through Resonance rather than building and maintaining dedicated prover networks themselves."},
+      {q:'In game theory, what is a Schelling point?',opts:['The moment a game ends in a draw','A formal agreement between competing parties','A coordination point people naturally converge on without needing to communicate','A penalty applied when rules are broken'],ans:2,exp:"A Schelling point is the obvious focal solution — where people end up when they need to coordinate without talking it through. Ritual's aim is to become this for advanced computation across web3: not mandated, just the obvious best option."},
+      {q:'A Rollup-as-a-Service company wants to add AI precompiles to their rollup product. How does Ritual help?',opts:['Ritual provides venture funding for RaaS teams','RaaS providers can access AI and other compute capabilities through Ritual marketplace rather than building the infrastructure themselves','Ritual automatically migrates existing rollups to include AI support','Ritual provides pre-built rollup templates with AI included'],ans:1,exp:"Building specialized compute infrastructure from scratch is expensive and complex. Ritual marketplace lets RaaS providers access AI precompiles, ZK proving, and other heterogeneous compute as services — plugging in rather than building from scratch."},
+      {q:'What fundamental property distinguishes Ritual from centralized cloud compute providers?',opts:['Ritual is always cheaper than cloud providers','Ritual has better uptime guarantees than cloud providers','Ritual processes requests faster than any cloud provider','Ritual guarantees come from cryptography and verifiable code, not from trusting a company'],ans:3,exp:"Any cloud provider can promise reliable, accurate compute. Ritual makes those guarantees cryptographically verifiable — you can check that computation was performed correctly without taking anyone's word for it. That is the trustless difference."},
+      {q:'Ritual describes itself as compute-agnostic. What does this mean in practice?',opts:['Ritual does not charge for computation','Ritual treats all computations as equally important regardless of complexity','The architecture is designed to incorporate any type of specialized computation as new valuable workloads emerge','Ritual supports smart contracts written in any programming language'],ans:2,exp:"Compute-agnostic means Ritual's marketplace and verification infrastructure are not limited to today's known workload types. As new forms of valuable computation emerge — beyond AI, ZK, and TEE — the network's design can incorporate them through the same underlying systems."}
+    ]
+  }
+];
+
+function renderModuleGrid(){
+  const done = getCompletedModules();
+  const grid = document.getElementById('module-grid');
+  grid.innerHTML = MODULES.map(m => {
+    const isComplete = done.includes(m.id);
+    return `<div class="module-card ${isComplete?'completed-card':''}" onclick="openModule('${m.id}')">
+      <div class="corners"><span></span><span></span><span></span><span></span></div>
+      <div class="module-num">// ${m.num}</div>
+      <div class="module-icon">${m.icon}</div>
+      <div class="module-title">${m.title}</div>
+      <div class="module-desc">${m.desc}</div>
+      <div class="module-footer">
+        <div class="module-tag tag-${m.tag}">${m.tagLabel}</div>
+        <div class="module-status ${isComplete?'status-done':'status-todo'}">${isComplete?'✓ Complete':'○ Not started'}</div>
+      </div>
+    </div>`;
+  }).join('');
+  updateProgressBar();
+  checkQuizUnlock();
+}
+
+renderModuleGrid();
+
+/* ─── MODULE READER ─── */
+let curModuleId = '', curStep = 0;
+// Per-module quiz state
+let mqQ = 0, mqScore = 0, mqAnswered = false, mqStarted = false;
+
+function openModule(id){
+  curModuleId = id; curStep = 0; mqQ = 0; mqScore = 0; mqAnswered = false; mqStarted = false;
+  document.getElementById('learn-home').style.display = 'none';
+  document.getElementById('learn-path').style.display = 'block';
+  renderStep();
+}
+
+function backToHome(){
+  document.getElementById('learn-home').style.display = 'block';
+  document.getElementById('learn-path').style.display = 'none';
+  renderModuleGrid();
+}
+
+function renderStep(){
+  const mod = MODULES.find(m=>m.id===curModuleId);
+  const steps = mod.steps, s = steps[curStep], total = steps.length;
+  const prog = document.getElementById('learn-progress');
+  prog.innerHTML = '';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='prog-step'+(i<curStep?' done':i===curStep?' cur':'');
+    prog.appendChild(d);
+  }
+  let html = `<div class="learn-step active">
+    <div class="step-num">${mod.title} // ${curStep+1} of ${total}</div>
+    <h2 class="step-title">${s.title}</h2>
+    <div class="step-body">${s.body}</div>`;
+  if(s.callout) html+=`<div class="callout"><strong>${s.callout.label}</strong>${s.callout.text}</div>`;
+  if(s.concepts){
+    html+=`<div class="concept-grid">`;
+    s.concepts.forEach(c=>{html+=`<div class="concept-card"><div class="cc-label">${c.label}</div><div class="cc-title">${c.title}</div><div class="cc-desc">${c.desc}</div></div>`;});
+    html+=`</div>`;
+  }
+  // If last step, append the module quiz instead of continue button
+  if(curStep === total-1){
+    html += `</div>`;
+    html += buildModuleQuiz(mod);
+    document.getElementById('learn-steps').innerHTML = html;
+    // inject back btn only into step nav area
+    document.querySelector('.learn-back').style.display = 'inline-flex';
+    window.scrollTo(0,0);
+    return;
+  }
+  html += `<div class="step-nav">`;
+  html += curStep>0?`<button class="btn-ghost" onclick="prevStep()">← Back</button>`:`<span></span>`;
+  html += `<button class="btn-primary" onclick="nextStep()">Continue →</button>`;
+  html += `</div></div>`;
+  document.getElementById('learn-steps').innerHTML = html;
+  window.scrollTo(0,0);
+}
+
+function buildModuleQuiz(mod){
+  const done = getCompletedModules();
+  const alreadyDone = done.includes(mod.id);
+  return `
+  <div class="module-quiz-wrap" id="mq-wrap">
+    <div class="mq-title">// Module Quiz</div>
+    <div class="mq-heading">${mod.title}: Knowledge Check</div>
+    ${alreadyDone ? `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);margin-bottom:12px;letter-spacing:.1em">✓ Module already completed</div>
+        <div style="display:flex;gap:10px;justify-content:center">
+          <button class="btn-ghost" onclick="startModuleQuiz()">Retake quiz</button>
+          <button class="btn-primary" onclick="backToHome()">← Back to modules</button>
+        </div>
+      </div>` : `
+      <div style="text-align:center;padding:12px 0 24px">
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.6">Answer all 5 questions correctly to complete this module. You can retry as many times as needed.</p>
+        <button class="btn-primary" onclick="startModuleQuiz()">Start Quiz →</button>
+      </div>`}
+    <div id="mq-questions" style="display:none"></div>
+    <div id="mq-result-area" style="display:none"></div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-dim)">
+      <button class="btn-ghost" onclick="prevStep()">← Back to reading</button>
+    </div>
+  </div>`;
+}
+
+function startModuleQuiz(){
+  mqQ = 0; mqScore = 0; mqAnswered = false; mqStarted = true;
+  document.getElementById('mq-questions').style.display = 'block';
+  document.getElementById('mq-result-area').style.display = 'none';
+  // Hide the start button area
+  const wrap = document.getElementById('mq-wrap');
+  const startDiv = wrap.querySelector('div[style*="text-align:center"]');
+  if(startDiv) startDiv.style.display = 'none';
+  renderMQ();
+}
+
+function renderMQ(){
+  const mod = MODULES.find(m=>m.id===curModuleId);
+  const q = mod.quiz[mqQ];
+  mqAnswered = false;
+  const pct = (mqQ / mod.quiz.length) * 100;
+  const L = ['A','B','C','D'];
+  document.getElementById('mq-questions').innerHTML = `
+    <div class="mq-prog-bar"><div class="mq-prog-fill" id="mq-fill" style="width:${pct}%"></div></div>
+    <div class="mq-q-num">// Question ${mqQ+1} of ${mod.quiz.length}</div>
+    <div class="mq-q-text">${q.q}</div>
+    <div class="mq-options" id="mq-opts">
+      ${q.opts.map((o,i)=>`<button class="mq-opt" onclick="selectMQ(${i})" id="mq-opt-${i}"><span class="mq-opt-l">${L[i]}</span>${o}</button>`).join('')}
+    </div>
+    <div class="mq-exp" id="mq-exp"></div>
+    <div style="text-align:right">
+      <button class="btn-primary" id="mq-next" onclick="nextMQ()" style="display:none;font-size:11px">Next →</button>
+    </div>`;
+}
+
+function selectMQ(idx){
+  if(mqAnswered) return;
+  mqAnswered = true;
+  const mod = MODULES.find(m=>m.id===curModuleId);
+  const q = mod.quiz[mqQ];
+  document.querySelectorAll('.mq-opt').forEach(o=>o.disabled=true);
+  if(idx===q.ans){ document.getElementById('mq-opt-'+idx).classList.add('correct'); mqScore++; }
+  else { document.getElementById('mq-opt-'+idx).classList.add('wrong'); document.getElementById('mq-opt-'+q.ans).classList.add('reveal'); }
+  const exp = document.getElementById('mq-exp');
+  exp.textContent = q.exp; exp.className = 'mq-exp show';
+  document.getElementById('mq-next').style.display = 'inline-block';
+}
+
+function nextMQ(){
+  mqQ++;
+  const mod = MODULES.find(m=>m.id===curModuleId);
+  if(mqQ >= mod.quiz.length){
+    showMQResult(mod);
+  } else {
+    renderMQ();
+  }
+}
+
+function showMQResult(mod){
+  document.getElementById('mq-questions').style.display = 'none';
+  document.getElementById('mq-result-area').style.display = 'block';
+  const passed = mqScore === mod.quiz.length;
+  if(passed) markModuleComplete(mod.id);
+  const allDone = getCompletedModules().length >= MODULES.length;
+  document.getElementById('mq-result-area').innerHTML = `
+    <div class="mq-result">
+      <div class="mq-result-score">${mqScore}<span>/${mod.quiz.length}</span></div>
+      <div class="mq-result-label">${passed?'Module Complete':'Try Again'}</div>
+      <div class="mq-result-msg">${passed
+        ? (allDone ? 'All modules complete. The final quiz is now unlocked.' : 'Well done. Move on to the next module.')
+        : 'You need a perfect score to complete this module. Review the content and retry.'}</div>
+      <div class="mq-result-actions">
+        ${passed
+          ? (allDone
+              ? `<button class="btn-amber" onclick="goFinalQuiz()">Take Final Quiz →</button><button class="btn-ghost" onclick="backToHome()">Back to modules</button>`
+              : `<button class="btn-primary" onclick="backToHome()">Next module →</button>`)
+          : `<button class="btn-primary" onclick="startModuleQuiz()">Retry quiz →</button>`}
+      </div>
+      ${!passed ? `<div class="mq-fail-note">// Score ${mqScore}/${mod.quiz.length} — all ${mod.quiz.length} correct required to pass</div>` : ''}
+    </div>`;
+}
+
+function goFinalQuiz(){
+  document.getElementById('nav-quiz').classList.remove('locked');
+  showSection('quiz', document.getElementById('nav-quiz'));
+  document.getElementById('quiz-locked-msg').style.display = 'none';
+  document.getElementById('quiz-ready-block').style.display = 'block';
+  document.getElementById('quiz-main').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+}
+
+function nextStep(){ curStep++; renderStep(); }
+function prevStep(){ curStep--; renderStep(); }
+
+/* ─── GLOSSARY ─── */
+const GLOSSARY=[
+  {term:'Ritual',tag:'core',tl:'Core',def:'A next generation blockchain designed to run complex computations — including AI inference, ZK proofs, and TEE execution — natively on chain, with the same security guarantees as a traditional blockchain.',eli5:'Like Ethereum, but the smart contracts can actually think, prove things, and keep secrets.'},
+  {term:'Symphony',tag:'infra',tl:'Infrastructure',def:"Ritual's consensus protocol. Extends Gasper with proof sharding, attested committees, and distributed verification, letting the network reach agreement on heterogeneous compute transactions without bottlenecks.",eli5:'The rulebook all computers follow to agree on what happened — rewritten for AI and complex tasks, not just simple transfers.'},
+  {term:'Resonance',tag:'infra',tl:'Infrastructure',def:"Ritual's dynamic compute marketplace. Applications submit requests through brokers; auctioneers route them to specialized nodes; nodes compete at market prices. Each computation type finds its own natural price based on supply and demand.",eli5:'A live auction where the network figures out who should run your computation and what it should cost.'},
+  {term:'Infernet',tag:'infra',tl:'Infrastructure',def:"Ritual's off-chain compute oracle. Smart contracts request computations that happen outside the blockchain. Verified results are settled back on chain with cryptographic proof of correct execution.",eli5:'The courier between the blockchain and the outside world — delivers computation results with proof they are correct.'},
+  {term:'EOVMT',tag:'infra',tl:'Infrastructure',def:'Execute Once, Verify Many Times. One specialized node runs an expensive computation. The rest of the network verifies a proof of correct execution rather than re-running the computation. Orders of magnitude more efficient than replicated execution.',eli5:'One capable computer does the hard work. Everyone else checks the receipt. Same security, much cheaper.'},
+  {term:'Heterogeneous Compute',tag:'core',tl:'Core',def:'The ability to run fundamentally different types of computation — AI inference, ZK proofs, TEE execution, standard EVM — in the same network, with different nodes handling different workloads based on their hardware specialization.',eli5:'A team where everyone has different skills rather than forcing everyone to do the same job.'},
+  {term:'Guardians',tag:'infra',tl:'Infrastructure',def:"Ritual's node-level firewall. Nodes specify which categories of computation they will service — by prompt topic, compute type, or other criteria — while still fully participating in consensus and earning rewards.",eli5:'A filter each computer can set for itself, choosing what work it will take on without dropping out of the network entirely.'},
+  {term:'Node Specialization',tag:'infra',tl:'Infrastructure',def:'Different nodes in the Ritual network specialize in hardware-intensive tasks — GPU nodes for AI inference, fast CPU nodes for ZK proving, TEE-equipped nodes for private execution. Each earns rewards appropriate to their contribution.',eli5:'Some computers are built for AI. Others for privacy math. Both stay in the same network and get paid for what they are actually good at.'},
+  {term:'ZK Proofs',tag:'core',tl:'Core',def:'Zero knowledge proofs. A cryptographic technique letting you prove a statement is true without revealing any supporting information. Used in Ritual to verify computation results efficiently — validators check the proof rather than re-running the computation.',eli5:'Proving you know the answer without showing your work. Mathematically airtight.'},
+  {term:'TEE',tag:'core',tl:'Core',def:"Trusted Execution Environment. A secure, isolated region of a processor where code runs with hardware-level privacy and tamper-resistance. Even the operator of the machine cannot see or modify what happens inside a TEE during execution.",eli5:'A locked room built into the processor. Code runs in there and nobody — not even the computer owner — can see inside.'},
+  {term:'Enshrined AI Models',tag:'ai',tl:'AI',def:"AI models registered as first-class citizens on the Ritual blockchain with on-chain identities, version histories, and verifiable provenance. Smart contracts invoke them directly, and anyone can verify which model version ran and what it produced.",eli5:'AI models living on the blockchain with a verifiable identity. You always know what model ran and that it was not tampered with.'},
+  {term:'Model Marketplace',tag:'ai',tl:'AI',def:"Ritual's platform for publishing, discovering, and monetizing AI models on chain. Creators register models with provenance metadata. Royalties are distributed automatically per inference. Fine-tuned variants can share revenue with base models.",eli5:'An App Store for AI models where creators get paid for every use and nobody takes a large cut.'},
+  {term:'Scheduled Transactions',tag:'core',tl:'Core',def:"A native Ritual feature allowing smart contracts to register future invocations that execute automatically at a specified block without any external trigger or keeper service.",eli5:'A built-in alarm clock for smart contracts. Set the time and it fires automatically.'},
+  {term:'Smart Contract',tag:'core',tl:'Core',def:'Self-executing code stored on a blockchain. When specified conditions are met, the contract executes automatically without human intervention or third party involvement. Rules are transparent and cannot be changed after deployment.',eli5:'A vending machine made of code. Put the right thing in, get exactly what was promised. Every time, no exceptions.'},
+  {term:'EVM++',tag:'infra',tl:'Infrastructure',def:"Ritual's enhanced Ethereum Virtual Machine. Adds native precompiles for AI inference, ZK proving, and TEE execution while maintaining full compatibility with existing Ethereum smart contracts and tooling.",eli5:'The Ethereum engine upgraded so smart contracts can call AI models and ZK proofs as easily as they transfer tokens.'},
+  {term:'Proof Sharding',tag:'infra',tl:'Infrastructure',def:"A Symphony optimization where large cryptographic proofs are split into smaller sub-proofs verified in parallel by different validator groups. Dramatically increases verification throughput.",eli5:'Splitting a big puzzle into pieces so different groups can each solve their piece simultaneously.'},
+  {term:'Verifiable Provenance',tag:'ai',tl:'AI',def:"A cryptographic record confirming an AI model's origin and integrity. With verifiable provenance you can prove which model version produced a given output and that neither the model nor the output was modified.",eli5:'A tamper-proof certificate of authenticity for AI. Prove what ran, when it ran, and that nobody changed the results.'},
+  {term:'Broker',tag:'infra',tl:'Infrastructure',def:"A participant in Ritual's Resonance marketplace representing applications or users that need compute. Brokers specify requirements and bids; auctioneers match them with appropriate nodes.",eli5:'The person in the compute marketplace saying what work needs doing and what they will pay for it.'},
+  {term:'Auctioneer',tag:'infra',tl:'Infrastructure',def:"The routing and matching layer in Resonance. Auctioneers receive requests from brokers and match them with available specialized nodes, handling price discovery.",eli5:'The matchmaker in the compute marketplace. Takes job descriptions from brokers and finds the right computers at the right price.'},
+  {term:'Chain Abstraction',tag:'core',tl:'Core',def:"The ability for applications to interact with multiple blockchains without users managing cross-chain complexity. Ritual includes native support for reading state and moving assets across chains as part of standard smart contract execution.",eli5:'Your app works across multiple blockchains without you needing to think about which one you are on.'},
+  {term:'Schelling Point',tag:'core',tl:'Core',def:"A solution people naturally converge on without coordination. Ritual aims to become the Schelling point for advanced computation in web3 — the obvious default infrastructure for AI, ZK, TEE, or other heterogeneous compute.",eli5:'The obvious place everyone ends up. Not because someone told them to, but because it is clearly the right tool.'},
+  {term:'vTune',tag:'ai',tl:'AI',def:"A Ritual research primitive focused on model provenance verification. Provides a cryptographic pathway to confirm a given AI model is the authentic version it claims to be, even when full model weights are not publicly available.",eli5:'A passport verification system for AI models — confirms the model is genuinely who it says it is.'},
+  {term:'SVE',tag:'ai',tl:'AI',def:"Statistical Verification of Execution. Verifies AI inference using statistical methods rather than full mathematical proofs. Achieves high confidence verification at practical cost for large models where full proofs would be too expensive.",eli5:'A smarter way to check AI ran correctly — uses statistics to confirm the result is almost certainly right at a fraction of the cost of full proofs.'},
+  {term:'Replicated Execution',tag:'core',tl:'Core',def:"The standard blockchain model where every validator node re-runs every transaction independently. Provides security through redundancy but is impractical for computationally expensive tasks like AI inference or ZK proof generation.",eli5:'Everyone in the network does the same homework to check nobody is cheating. Works for simple tasks. Falls apart for anything complicated.'},
+  {term:'Prover Network',tag:'ecosystem',tl:'Ecosystem',def:"Infrastructure that generates zero knowledge proofs for blockchain applications. High-performance chains often need dedicated prover infrastructure. Ritual can serve as the prover infrastructure for chains that need it, sourced through Resonance.",eli5:'A team of specialized computers doing the heavy math needed to prove blockchain transactions are valid. Ritual can be that team for other blockchains.'},
+  {term:'Rollup-as-a-Service',tag:'ecosystem',tl:'Ecosystem',def:"Platforms letting teams deploy custom blockchain rollups without building all the infrastructure from scratch. Ritual integrates with RaaS providers to give their rollups access to heterogeneous compute like AI precompiles and advanced scheduling.",eli5:'A service that lets you spin up your own mini-blockchain. Ritual adds advanced features to those blockchains through its compute layer.'},
+  {term:'Permissionlessness',tag:'core',tl:'Core',def:"A property of public blockchain networks where anyone can use the network, run a node, or deploy a contract without approval from any central authority. Ritual maintains permissionlessness while letting individual nodes set compute preferences through Guardians.",eli5:'No gatekeepers. Anyone can join and use the network without asking for permission.'},
+  {term:'Consensus',tag:'core',tl:'Core',def:"The process by which nodes in a blockchain network agree on the current state — which transactions happened, in what order, and the resulting balances and states. Ritual's Symphony handles consensus for heterogeneous compute.",eli5:'The process by which thousands of computers come to agree on what just happened. Without it, nobody could trust the blockchain.'},
+  {term:'On Chain',tag:'core',tl:'Core',def:"Data, logic, or computation existing and executing within the blockchain rather than on external servers. On-chain operations inherit the security, transparency, and censorship resistance of the network.",eli5:'Living inside the blockchain. On chain means public, permanent, and protected by the same math that secures the money.'},
+  {term:'Attestation',tag:'infra',tl:'Infrastructure',def:"A cryptographic certificate proving a computation happened in a specific way or environment. TEE attestations prove code ran in a genuine secure enclave. Used throughout Ritual to make trust assumptions explicit and verifiable.",eli5:'A signed certificate saying "yes, this really happened the way we said it did." Cryptography you can check rather than a promise to believe.'}
+];
+
+function renderGlossary(terms){
+  const list=document.getElementById('g-list'),noR=document.getElementById('no-results');
+  if(!terms.length){list.innerHTML='';noR.style.display='block';return;}
+  noR.style.display='none';
+  list.innerHTML=terms.map((t,i)=>`
+    <div class="glossary-item" id="gi-${i}">
+      <button class="glossary-trigger" onclick="toggleG(${i})">
+        <span class="g-term">${t.term}</span>
+        <span class="g-tag tag-${t.tag}">${t.tl}</span>
+        <span class="g-chevron">▾</span>
+      </button>
+      <div class="g-body">${t.def}<div class="g-eli5">// ${t.eli5}</div></div>
+    </div>`).join('');
+}
+function toggleG(i){document.getElementById('gi-'+i).classList.toggle('open');}
+function filterGlossary(){
+  const q=document.getElementById('g-search').value.toLowerCase();
+  renderGlossary(q?GLOSSARY.filter(t=>t.term.toLowerCase().includes(q)||t.def.toLowerCase().includes(q)||t.eli5.toLowerCase().includes(q)):GLOSSARY);
+}
+renderGlossary(GLOSSARY);
+
+/* ─── FINAL QUIZ ─── */
+const FINAL_QS=[
+  {q:'In the EOVMT model, what does the rest of the network do after the executing node finishes?',opts:['Re-runs the computation to confirm the result','Verifies a cryptographic proof of correct execution rather than repeating the work','Votes on whether to accept the result','Waits for a second node to independently run the same computation'],ans:1,diff:'advanced',exp:'EOVMT stands for Execute Once, Verify Many Times. The heavy computation runs once on a specialized node. The rest of the network verifies a cryptographic proof — much cheaper than re-running it — while maintaining the same security guarantees.'},
+  {q:'What existing Ethereum mechanism did Symphony extend, and what did it add?',opts:['It extended Gasper with proof sharding, attested committees, and distributed verification for heterogeneous compute','It replaced proof-of-work with proof-of-stake adding faster finality','It replaced Gasper entirely with a new algorithm optimized for AI workloads','It extended Tendermint with specialized committees for different transaction types'],ans:0,diff:'advanced',exp:"Symphony extends Gasper — Ethereum's consensus mechanism — rather than replacing it. The additions (proof sharding, attested committees, distributed verification) allow Symphony to handle diverse compute types simultaneously without bottlenecking."},
+  {q:'A DeFi protocol needs a token swap and an AI risk model in the same transaction. What does Resonance determine?',opts:['Whether the transaction is allowed at all','A total combined gas fee identical to Ethereum pricing','The separate market price for each computation type based on supply and demand for that specific workload','Which validators are allowed to process the transaction'],ans:2,diff:'advanced',exp:"Resonance prices each computation type independently through supply and demand. An AI inference on a GPU carries a different market rate than a token swap on standard EVM. Resonance determines the right price for each part separately."},
+  {q:'What is the key difference between Infernet delivering a result and a standard web API?',opts:['Infernet is faster and has better uptime','Infernet is cheaper because there are no server costs','Infernet results come with cryptographic proofs validators verify on chain — no need to trust the provider','Infernet results are stored permanently while API results expire'],ans:2,diff:'advanced',exp:"A standard API asks you to trust the provider. Infernet results come with cryptographic proofs that anyone can verify on chain — confirming the computation actually happened as claimed. Trustless delivery versus trusted delivery."},
+  {q:'Which correctly describes how Guardians preserve censorship resistance?',opts:['All nodes are legally required to accept every request','A central authority overrides individual node preferences when necessary','Censorship resistance is sacrificed so operators have meaningful control','Individual nodes can filter what they compute while the network stays permissionless because other willing nodes step in'],ans:3,diff:'advanced',exp:"Guardians operate at the node level. A node declines a specific request — that is its right. Other nodes with different configurations accept it. The network overall never censors, even when individual nodes are selective."},
+  {q:'What changes about AI accountability when a model is enshrined on Ritual?',opts:['The model becomes free to use for everyone','The model automatically becomes more accurate and unbiased','The company retains full control but publishes usage statistics','You can cryptographically verify which version ran and that outputs were not tampered with — no trust in a hosting company required'],ans:3,diff:'beginner',exp:"A company-hosted model requires trusting the company. An enshrined on-chain model has cryptographic identity and provenance — you can verify exactly what ran and confirm outputs independently. Trust replaced by verifiable proof."},
+  {q:'A base model is fine-tuned by a third party on the Model Marketplace. How do royalties work?',opts:['The fine-tuner keeps all revenue from their variant','The base model creator manually invoices the fine-tuner each month','Smart contracts automatically distribute royalties per inference with fine-tuned variants sharing revenue upstream with base models','The Ritual Foundation distributes earnings based on a governance vote'],ans:2,diff:'beginner',exp:"The Model Marketplace handles royalties automatically at the protocol level. Every inference on a fine-tuned variant triggers smart contract payments that flow to both the fine-tuner and the base model creator. No manual processes, no disputes."},
+  {q:'Which correctly describes what a TEE guarantees?',opts:['Code runs in a processor-level isolated environment where even the machine operator cannot observe or modify execution','It encrypts the result after computation so only the requester can read it','It makes the computation faster by using dedicated hardware','It ensures the computation is run by multiple nodes for redundancy'],ans:0,diff:'advanced',exp:'A TEE is a hardware guarantee built into the processor. Isolation means not even the machine owner can see inside during execution. Results come with attestations proving the environment was genuine — hardware-level assurance, not just software.'},
+  {q:'Before Scheduled Transactions existed, what risk did time-based smart contract logic carry?',opts:['The transactions would fail if gas price was too low','Logic depended on external keeper bots that could go offline, causing scheduled actions to simply not fire','Scheduled actions could only run once per day due to block limits','Time-based logic required a governance vote to authorize each execution'],ans:1,diff:'beginner',exp:"Keeper bots were the standard workaround — external services watching for conditions and submitting transactions. If a keeper went down, your scheduled action did not fire. Ritual makes scheduling native so registered invocations execute automatically."},
+  {q:'An existing Ethereum smart contract wants to call a Ritual AI precompile. What does the developer need to change?',opts:['Rewrite the contract in a Ritual-specific language','Deploy a separate bridge contract to handle AI requests','Upgrade to a newer version of Solidity first','Nothing — existing contracts run unchanged and the precompile is called as a native operation'],ans:3,diff:'advanced',exp:"EVM++ is fully backward compatible. Existing Solidity contracts run on Ritual without modification. Adding AI inference is as simple as calling a precompile — no rewrites, no separate deployments, no new language required."},
+  {q:'A chain needs a prover network for its ZK rollup. How does Ritual help?',opts:['Ritual provides grants to teams building dedicated prover networks','Ritual cannot help with ZK proving — it only supports AI workloads','The chain can source ZK proof generation from Ritual nodes through Resonance instead of building dedicated infrastructure','Ritual allows the chain to skip proof generation entirely'],ans:2,diff:'beginner',exp:"Ritual's heterogeneous compute architecture supports ZK proof generation natively. Chains needing prover infrastructure can use Ritual nodes through Resonance — paying market rates — rather than building a separate dedicated prover network."},
+  {q:'What makes Ritual trustless compute infrastructure rather than another cloud provider?',opts:['Ritual is cheaper and has better availability','Ritual is non-profit and does not profit from compute sales','Cloud providers are faster but Ritual is more decentralized','Ritual guarantees come from cryptographic proofs anyone can verify, not from trusting a company'],ans:3,diff:'beginner',exp:"Cloud compute is trust-based — you trust the provider to execute correctly. Ritual's compute comes with cryptographic proofs of correct execution that anyone can independently verify. The guarantee is mathematical, not reputational."},
+  {q:'What does node specialization mean for Ritual\'s economic model?',opts:['All nodes earn equal rewards regardless of hardware','Node operators earn the Ritual Foundation\'s fixed rate for their registered node type','Node operators earn based on market rate for their specific compute type — GPU nodes earn more for AI than standard nodes do','Nodes with more stake earn more regardless of what compute they provide'],ans:2,diff:'advanced',exp:"Node specialization maps hardware investment to economic reward. A GPU-equipped AI inference node earns the AI inference market rate through Resonance. A ZK-optimized node earns the ZK proving rate. Rewards reflect actual contribution and cost."},
+  {q:'What does verifiable provenance let you confirm about an AI model output?',opts:['That the output was generated faster than a benchmark time','That the output has been reviewed by a human expert','That no other model produced a better output for the same prompt','Which model version produced the output and that neither the model nor result was modified'],ans:3,diff:'advanced',exp:"Verifiable provenance is a cryptographic record. You can confirm exactly which version of which model ran and verify the outputs were not tampered with between generation and delivery. Company promises replaced by mathematical guarantees."},
+  {q:'What foundational question did Ritual ask that previous blockchains ignored?',opts:['How can we make transactions cheaper than any existing chain?','How can we reduce validator count while maintaining security?','What should blockchains be able to do that they currently cannot — not just how to do existing things faster?','How can we make smart contract languages easier to learn?'],ans:2,diff:'beginner',exp:"Every blockchain generation competed on speed and cost for the same workloads. Ritual started from a different question: what genuinely new capabilities should blockchains have? The answer — natively supporting AI, ZK, TEE, and complex heterogeneous compute."},
+  {q:'In proof sharding, why are sub-proofs checked by different validator subsets simultaneously?',opts:['To give all validators equal earnings','To prevent any single validator from seeing the full proof','To allow multiple proofs to be verified in parallel rather than sequentially — dramatically increasing throughput','To ensure geographic distribution of validation work'],ans:2,diff:'advanced',exp:"Splitting proofs into sub-proofs means different validator groups check different pieces at the same time. Sequential verification is replaced by parallel verification. The result is far higher proof throughput per unit of time."},
+  {q:'Why does SVE matter for making on-chain AI accountability practical?',opts:['Full mathematical proofs are legally prohibited in some jurisdictions','SVE is easier for non-technical users to understand','Full proofs for large AI models would cost more to generate than the inference itself — SVE makes verification feasible at scale','SVE produces more accurate verification results than mathematical proofs'],ans:2,diff:'advanced',exp:"A complete mathematical proof for every inference on a large model is prohibitively expensive — often more costly than the computation itself. SVE achieves very high confidence verification at a fraction of the cost, making on-chain AI accountability practical."},
+  {q:'What is a Schelling point and why is it relevant to Ritual?',opts:['A pricing floor preventing compute from being undersold','A security boundary preventing unauthorized nodes from joining','A formal governance process for major protocol changes','A natural coordination point people converge on without direction — Ritual aims to be this for all advanced compute in web3'],ans:3,diff:'beginner',exp:"A Schelling point is where people naturally end up when coordinating. Ritual aims to be the obvious default for any chain or application needing AI, ZK, TEE, or heterogeneous compute — not because anyone mandated it, but because the infrastructure is the best option."},
+  {q:'What does attestation prove when produced by a TEE node?',opts:['That the node has been running for more than 30 days','That the node paid the required stake to participate in the network','That the node\'s hardware exceeds a specified performance benchmark','That code ran in a genuine secure enclave and the execution environment was not tampered with'],ans:3,diff:'advanced',exp:"TEE attestations are hardware-signed certificates proving the processor's isolated region was active and unmodified during execution. This turns hardware privacy claims into independently verifiable guarantees."},
+  {q:'What distinct role does each of Ritual Chain and Infernet play?',opts:['Ritual Chain handles token transfers; Infernet handles NFTs','They are redundant backup systems for each other','Ritual Chain stores data on chain; Infernet stores data off chain','Ritual Chain handles native on-chain compute via precompiles; Infernet handles off-chain compute and settles verified results on chain'],ans:3,diff:'advanced',exp:"They are complementary layers covering the full compute spectrum. Ritual Chain executes via heterogeneous precompiles for on-chain work. Infernet handles off-chain jobs and settles cryptographically verified results back on chain. Together no computation type is out of reach."}
+];
+let fqCur=0, fqScore=0, fqAnswered=false;
+
+function startFinalQuiz(){
+  fqCur=0; fqScore=0; fqAnswered=false;
+  document.getElementById('quiz-start-screen').style.display='none';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-main').style.display='block';
+  renderFinalQ();
+}
+
+function renderFinalQ(){
+  const q=FINAL_QS[fqCur]; fqAnswered=false;
+  document.getElementById('q-fill').style.width=((fqCur/FINAL_QS.length)*100)+'%';
+  document.getElementById('q-num').innerHTML=`// Question ${fqCur+1} of ${FINAL_QS.length} <span class="q-diff diff-${q.diff}">${q.diff}</span>`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-exp').className='q-exp';
+  document.getElementById('q-next').style.display='none';
+  const L=['A','B','C','D'];
+  document.getElementById('q-opts').innerHTML=q.opts.map((o,i)=>
+    `<button class="q-opt" onclick="selectFinalQ(${i})" id="fq-opt-${i}"><span class="opt-l">${L[i]}</span>${o}</button>`
+  ).join('');
+}
+
+function selectFinalQ(idx){
+  if(fqAnswered)return; fqAnswered=true;
+  const q=FINAL_QS[fqCur];
+  document.querySelectorAll('.q-opt').forEach(o=>o.disabled=true);
+  if(idx===q.ans){document.getElementById('fq-opt-'+idx).classList.add('correct');fqScore++;}
+  else{document.getElementById('fq-opt-'+idx).classList.add('wrong');document.getElementById('fq-opt-'+q.ans).classList.add('reveal');}
+  const exp=document.getElementById('q-exp');
+  exp.textContent=q.exp; exp.className='q-exp show';
+  document.getElementById('q-next').style.display='inline-block';
+}
+
+function nextFinalQ(){
+  fqCur++;
+  if(fqCur>=FINAL_QS.length) showFinalResult();
+  else renderFinalQ();
+}
+
+function showFinalResult(){
+  document.getElementById('quiz-main').style.display='none';
+  document.getElementById('quiz-result').style.display='block';
+  let tier,msg;
+  if(fqScore>=18){tier='🔮 Ascendant Ritualist';msg='The protocol recognizes you. You were built different.';}
+  else if(fqScore>=14){tier='✦ Ritualist';msg='You have done the work. The chain has taken note.';}
+  else if(fqScore>=10){tier='◈ Ritty';msg='Deep enough to be dangerous. Keep going.';}
+  else if(fqScore>=6){tier='⬡ Bitty';msg='The signal is coming in. Keep reading.';}
+  else{tier='· Normie';msg='Go back through the modules and try again.';}
+  document.getElementById('r-score').innerHTML=`${fqScore}<span>/${FINAL_QS.length}</span>`;
+  document.getElementById('r-tier').textContent=tier;
+  document.getElementById('r-msg').textContent=msg;
+  saveFinalScore(currentUser||'anon',fqScore,tier);
+}
+
+function retryFinalQuiz(){
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-start-screen').style.display='block';
+  document.getElementById('quiz-locked-msg').style.display='none';
+  document.getElementById('quiz-ready-block').style.display='block';
+}
+
+/* ─── LEADERBOARD (UPDATED TO HIT YOUR NEW VERCEL BACKEND) ─── */
+function lsLoad(){try{return JSON.parse(localStorage.getItem('ritual_lb_scores')||'[]');}catch{return[];}}
+function lsSave(s){try{localStorage.setItem('ritual_lb_scores',JSON.stringify(s));}catch{}}
+function mergeScores(a,b){
+  const m={};
+  [...a,...b].forEach(s=>{const k=s.name.toLowerCase();if(!m[k]||s.score>m[k].score)m[k]=s;});
+  return Object.values(m).sort((a,b)=>b.score-a.score).slice(0,50);
+}
+
+async function saveFinalScore(name,score,tier){
+  const entry={name,score,tier,date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})};
+  const local=lsLoad();
+  const idx=local.findIndex(s=>s.name.toLowerCase()===name.toLowerCase());
+  if(idx>=0){if(score>local[idx].score)local[idx]=entry;}else local.push(entry);
+  local.sort((a,b)=>b.score-a.score); lsSave(local);
+  
+  try{
+    const wRes = await fetch(CONFIG.api_url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-ritual-secret': 'PROTOCOL_ACTIVE' },
+      body: JSON.stringify(entry)
+    });
+    if(!wRes.ok) throw new Error('Write HTTP '+wRes.status);
+    const wData = await wRes.json();
+    lsSave(wData.scores);
+  } catch(e) { console.warn('Backend sync failed — saved locally.', e.message); }
+}
+
+async function loadLB(){
+  const body=document.getElementById('lb-body');
+  body.innerHTML='<div class="lb-loading">// Loading rankings...</div>';
+  let scores=[],source='local';
+  try{
+    const res = await fetch(CONFIG.api_url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    scores = mergeScores(data.scores || [], lsLoad());
+    lsSave(scores); source='remote';
+  } catch(e) { console.warn('Remote load failed.', e.message); scores=lsLoad(); }
+
+  if(!scores.length){body.innerHTML='<div class="lb-empty">// No scores yet — complete all modules and take the final quiz.</div>';return;}
+  const M=['🥇','🥈','🥉'];
+  body.innerHTML=scores.map((s,i)=>`
+    <div class="lb-row">
+      <div class="lb-rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${M[i]||'#'+(i+1)}</div>
+      <div class="lb-name">${s.name}${s.name===currentUser?'<span class="lb-you">you</span>':''}</div>
+      <div class="lb-score">${s.score}/${FINAL_QS.length}</div>
+      <div class="lb-date">${s.date||'—'}</div>
+    </div>`).join('')+
+  (source==='local'?`<div style="padding:8px 18px;font-family:var(--mono);font-size:9px;color:var(--text-faint);border-top:1px solid var(--border-dim);letter-spacing:.08em">// local scores only — host this file on a server for live cross-user rankings</div>`:'');
+}
+loadLB();
+
+/* ─── INIT ─── */
+initUser();
+updateProgressBar();
+checkQuizUnlock();
+</script>
+</body>
+</html>
